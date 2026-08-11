@@ -1,0 +1,13 @@
+{
+  "name": "reactive-app",
+  "version": "0.1.0",
+  "description": "Re+Active — reflective psychological companion (web app)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "express": "^4.19.0"
+  }
+}

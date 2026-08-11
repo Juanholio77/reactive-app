@@ -1,0 +1,24 @@
+{
+  "updated": "2026-08-11",
+  "fallback": { "note": "Local emergency services + findahelpline.com", "url": "https://findahelpline.com" },
+  "countries": {
+    "US": { "line": "988 (Spanish: press 2) · Text HOME to 741741", "emergency": "911" },
+    "CA": { "line": "988", "emergency": "911" },
+    "MX": { "line": "Línea de la Vida 800-911-2000", "emergency": "911" },
+    "BR": { "line": "CVV 188 · cvv.org.br", "emergency": "190" },
+    "AR": { "line": "CAS 135 (CABA/GBA) · (011) 5275-1135", "emergency": "911" },
+    "CL": { "line": "*4141 · Salud Responde 600 360 7777", "emergency": "131" },
+    "PE": { "line": "Línea 113, opción 5", "emergency": "105" },
+    "CO": { "line": "Línea 106 (Bogotá; varía por región)", "emergency": "123" },
+    "UY": { "line": "Línea de Vida 0800-0767 / *0767", "emergency": "911" },
+    "CR": { "line": "Aquí Estoy 800-2737-869 · 2272-3774", "emergency": "911" },
+    "PA": { "line": "Línea 169 (MINSA)", "emergency": "911" },
+    "EC": { "line": "Línea 171 opción 6 (7:00–20:00; fuera de horario: 911)", "emergency": "911" },
+    "DO": { "line": "Línea 811", "emergency": "911" },
+    "PY": { "line": "Línea 155 'Te Escucha'", "emergency": "911" },
+    "HN": { "line": "Teléfono de la Esperanza 150 (horario limitado)", "emergency": "911" },
+    "GT": { "line": "Liga Guatemalteca de Higiene Mental 2232-6269 / 2238-3739 (no 24h) + findahelpline.com", "emergency": "110 / 123" },
+    "SV": { "line": "Línea 126 (mujeres y jóvenes) + findahelpline.com", "emergency": "911" },
+    "NI": { "line": "Línea 133 (familia/niñez) + findahelpline.com", "emergency": "118" }
+  }
+}
