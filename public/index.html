@@ -1,148 +1,255 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-950 text-slate-100 antialiased">
+<html lang="es" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
   <title>Re+Active</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#f0fdfa',
-              100: '#ccfbf1',
-              400: '#2dd4bf',
-              500: '#14b8a6',
-              600: '#0d9488',
-              700: '#0f766e',
-              900: '#134e4a',
-            }
-          }
-        }
+  <style>
+    /* ==========================================================
+       Theme tokens — follow the OS/browser light/dark preference
+       ========================================================== */
+    :root {
+      color-scheme: light dark;
+      --bg:          #020617;
+      --surface:     #0f172a;
+      --surface-2:   #0b1220;
+      --border:      #1e293b;
+      --border-soft: #1e293b99;
+      --text:        #e2e8f0;
+      --muted:       #94a3b8;
+      --subtle:      #64748b;
+      --brand:       #2dd4bf;
+      --brand-hover: #14b8a6;
+      --on-brand:    #04211d;
+      --pro:         #a78bfa;
+      --pro-hover:   #8b5cf6;
+      --on-pro:      #1e1b4b;
+      --bubble-user: #0d9488;
+      --on-bubble:   #f0fdfa;
+      --danger:      #f87171;
+      --oauth-bg:    #ffffff;
+      --oauth-fg:    #0f172a;
+      --oauth-br:    #ffffff;
+      --apple-bg:    #ffffff;
+      --apple-fg:    #000000;
+      --shadow:      0 10px 30px -12px rgba(0,0,0,.6);
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        /* Soft blue-green light theme — no pure white, so panels and
+           borders stay visible against the page background. */
+        --bg:          #e4f0ee;
+        --surface:     #f4faf9;
+        --surface-2:   #dcebe8;
+        --border:      #bcd6d1;
+        --border-soft: #cadfdb;
+        --text:        #10302c;
+        --muted:       #3d605b;
+        --subtle:      #648a84;
+        --brand:       #0d7d72;
+        --brand-hover: #0b6259;
+        --on-brand:    #ffffff;
+        --pro:         #6d34c9;
+        --pro-hover:   #5a29a8;
+        --on-pro:      #ffffff;
+        --bubble-user: #0d7d72;
+        --on-bubble:   #ffffff;
+        --danger:      #c0392b;
+        --oauth-bg:    #ffffff;
+        --oauth-fg:    #10302c;
+        --oauth-br:    #bcd6d1;
+        --apple-bg:    #000000;
+        --apple-fg:    #ffffff;
+        --shadow:      0 10px 28px -16px rgba(16,48,44,.35);
       }
     }
-  </script>
-  <style>
-    /* Custom Scrollbar */
-    #chat::-webkit-scrollbar {
-      width: 6px;
+
+    /* Accent follows the chosen track: personal (brand) or professional (pro) */
+    body { --accent: var(--brand); --accent-hover: var(--brand-hover); --on-accent: var(--on-brand); }
+    body[data-track="pro"] { --accent: var(--pro); --accent-hover: var(--pro-hover); --on-accent: var(--on-pro); }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* Larger base type: comfortable on mobile, not oversized */
+      font-size: 16px;
     }
-    #chat::-webkit-scrollbar-track {
-      background: transparent;
+
+    /* Semantic helpers */
+    .card      { background: var(--surface);   border: 1px solid var(--border); }
+    .inset     { background: var(--surface-2); border: 1px solid var(--border-soft); }
+    .bar       { background: var(--surface);   border-color: var(--border); }
+    .muted     { color: var(--muted); }
+    .subtle    { color: var(--subtle); }
+    .brandtext { color: var(--brand); }
+    .protext   { color: var(--pro); }
+    .accenttext{ color: var(--accent); }
+    .divider   { background: var(--border); }
+
+    .btn-accent { background: var(--accent); color: var(--on-accent); }
+    .btn-accent:hover:not(:disabled) { background: var(--accent-hover); }
+    .btn-pro    { background: var(--pro); color: var(--on-pro); }
+    .btn-pro:hover:not(:disabled) { background: var(--pro-hover); }
+    .btn-ghost  { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover:not(:disabled) { border-color: var(--accent); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .field { background: var(--surface); border: 1px solid var(--border); }
+    .field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+    select, textarea { color: var(--text); }
+    select option { background: var(--surface); color: var(--text); }
+
+    /* Track selector cards */
+    .track { background: var(--surface-2); border: 1px solid var(--border); transition: all .18s; }
+    .track:hover { border-color: var(--subtle); }
+    .track[aria-pressed="true"][data-track="personal"] { border-color: var(--brand); background: color-mix(in srgb, var(--brand) 12%, var(--surface-2)); }
+    .track[aria-pressed="true"][data-track="pro"]      { border-color: var(--pro);   background: color-mix(in srgb, var(--pro)   12%, var(--surface-2)); }
+
+    /* Language buttons */
+    .langbtn { color: var(--muted); transition: all .15s; }
+    .langbtn:hover { color: var(--text); background: var(--surface-2); }
+    .langbtn[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+
+    /* Animated "type here" hint */
+    @keyframes hintPulse { 0%, 100% { opacity: .35 } 50% { opacity: 1 } }
+    .hint::placeholder { color: var(--muted); animation: hintPulse 2.6s ease-in-out infinite; }
+    textarea::placeholder { color: var(--subtle); }
+    @media (prefers-reduced-motion: reduce) {
+      .hint::placeholder { animation: none; opacity: .8; }
     }
-    #chat::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 9999px;
-    }
-    #chat::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
+
+    #chat::-webkit-scrollbar { width: 6px; }
+    #chat::-webkit-scrollbar-track { background: transparent; }
+    #chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
+    #chat::-webkit-scrollbar-thumb:hover { background: var(--subtle); }
   </style>
 </head>
-<body class="flex flex-col h-full bg-slate-950 text-slate-100 font-sans">
+<body class="flex flex-col h-full">
 
-  <!-- Unified Onboarding (Welcome → Consent + Login) -->
-  <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 transition-all duration-300 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 my-8">
+  <!-- ===================== Onboarding ===================== -->
+  <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" style="background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px);">
+    <div class="card rounded-2xl p-6 sm:p-8 max-w-lg w-full space-y-6 my-8" style="box-shadow: var(--shadow)">
 
-      <!-- Top row: step dots + language switch -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div id="dot1" class="h-1.5 w-8 rounded-full bg-brand-400 transition-colors duration-300"></div>
-          <div id="dot2" class="h-1.5 w-8 rounded-full bg-slate-700 transition-colors duration-300"></div>
+      <!-- Top row: language first, then step dots -->
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center rounded-lg overflow-hidden" style="border:1px solid var(--border)">
+          <button data-setlang="es" aria-pressed="true" class="langbtn flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold">
+            <svg class="w-4 h-3 rounded-[2px] shrink-0" viewBox="0 0 9 6"><rect width="9" height="6" fill="#f4f5f0"/><rect width="3" height="6" fill="#4997d0"/><rect x="6" width="3" height="6" fill="#4997d0"/><circle cx="4.5" cy="3" r="1.05" fill="none" stroke="#3f7d3f" stroke-width=".5"/><rect x="4.35" y="1.75" width=".3" height="2.5" fill="#9b7a3a"/></svg>
+            ES
+          </button>
+          <button data-setlang="en" aria-pressed="false" class="langbtn flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold">
+            <svg class="w-4 h-3 rounded-[2px] shrink-0" viewBox="0 0 19 10"><rect width="19" height="10" fill="#fff"/><g fill="#b22234"><rect width="19" height="1"/><rect y="2" width="19" height="1"/><rect y="4" width="19" height="1"/><rect y="6" width="19" height="1"/><rect y="8" width="19" height="1"/></g><rect width="8" height="5.4" fill="#3c3b6e"/></svg>
+            EN
+          </button>
         </div>
-        <div class="flex items-center rounded-lg border border-slate-700/80 overflow-hidden text-[11px] font-semibold">
-          <button data-setlang="es" class="langbtn px-2.5 py-1 transition">ES</button>
-          <button data-setlang="en" class="langbtn px-2.5 py-1 transition">EN</button>
+        <div class="flex items-center gap-2">
+          <div id="dot1" class="h-1.5 w-8 rounded-full transition-colors" style="background: var(--accent)"></div>
+          <div id="dot2" class="h-1.5 w-8 rounded-full transition-colors" style="background: var(--border)"></div>
         </div>
       </div>
 
       <!-- Step 1: Welcome -->
       <div id="step1" class="space-y-6">
         <div class="space-y-3">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium accenttext" style="background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent)">
             <span data-i18n="badge">Acompañamiento Inteligente</span>
           </div>
-          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            <span data-i18n="welcome">Bienvenido a</span> <span class="text-brand-400">Re+</span><span class="text-white">Active</span>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+            <span data-i18n="welcome">Bienvenido a</span> <span class="brandtext">Re+</span>Active
           </h2>
-          <p class="text-sm text-slate-300 leading-relaxed" data-i18n="intro">
+          <p class="text-base leading-relaxed muted" data-i18n="intro">
             Un espacio interactivo diseñado para ayudarte a procesar emociones, ordenar pensamientos complejos o preparar conversaciones importantes — con claridad y sin prisa.
           </p>
         </div>
 
-        <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 space-y-2 text-xs">
-          <h4 class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+        <div class="inset rounded-xl p-4 space-y-2">
+          <h4 class="font-semibold text-[15px] flex items-center gap-2">
             <span>✨</span> <span data-i18n="howtoTitle">Cómo aprovechar el chat</span>
           </h4>
-          <ul class="text-slate-400 space-y-1.5 list-disc list-inside leading-relaxed">
+          <ul class="muted text-sm space-y-1.5 list-disc list-inside leading-relaxed">
             <li data-i18n="howto1">Exprésate con total libertad y a tu propio ritmo.</li>
-            <li data-i18n="howto2">Cambia entre modo Explorar o Profesional desde el selector superior.</li>
+            <li data-i18n="howto2">Cambia entre modo Explorar o Profesional cuando quieras.</li>
             <li data-i18n="howto3">Pide un Resumen en cualquier momento para consolidar tus hallazgos.</li>
           </ul>
         </div>
 
-        <button id="next" class="w-full py-3 px-4 bg-brand-500 hover:bg-brand-600 text-slate-950 font-semibold text-sm rounded-xl transition duration-200 shadow-lg shadow-brand-500/10 active:scale-[0.99]" data-i18n="continue">
+        <button id="next" class="btn-accent w-full py-3 px-4 font-semibold text-[15px] rounded-xl transition active:scale-[0.99]" data-i18n="continue">
           Continuar
         </button>
       </div>
 
-      <!-- Step 2: Disclaimer + Consent + Login -->
+      <!-- Step 2: Disclaimer + Track + Login -->
       <div id="step2" class="hidden space-y-6">
-        <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+        <h2 class="text-xl font-bold tracking-tight flex items-center gap-2">
           <span>🛡️</span> <span data-i18n="beforeStart">Antes de comenzar</span>
         </h2>
 
-        <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400 leading-relaxed">
+        <div class="inset rounded-xl p-4 text-sm muted leading-relaxed">
           <p data-i18n="disclaimer" data-i18n-html="1">
-            Re+Active es un programa de inteligencia artificial, no una persona ni un profesional de salud mental. No ofrece terapia, diagnóstico ni tratamiento. Si estás en crisis, contacta a los servicios de emergencia de tu país o visita <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">findahelpline.com</a>. Tus conversaciones se procesan mediante servicios de IA de terceros.
+            Re+Active es un programa de inteligencia artificial, no una persona ni un profesional de salud mental. No ofrece terapia, diagnóstico ni tratamiento. Si estás en crisis, contacta a los servicios de emergencia de tu país o visita <a href="https://findahelpline.com" target="_blank" rel="noopener" class="brandtext hover:underline">findahelpline.com</a>. Tus conversaciones se procesan mediante servicios de IA de terceros.
           </p>
         </div>
 
-        <label class="flex items-start gap-3 cursor-pointer group">
-          <input type="checkbox" id="age" class="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-950 text-brand-500 focus:ring-brand-500/30 focus:ring-offset-slate-900 transition">
-          <span class="text-xs text-slate-300 group-hover:text-slate-200 transition select-none" data-i18n="consent">
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input type="checkbox" id="age" class="mt-1 h-4 w-4 rounded shrink-0" style="accent-color: var(--accent)">
+          <span class="text-sm muted select-none" data-i18n="consent">
             Confirmo que tengo 18 años o más y entiendo lo anterior.
           </span>
         </label>
 
+        <!-- Track: personal vs professional -->
         <div class="space-y-3">
-          <button id="googleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white hover:bg-slate-100 disabled:bg-slate-800 disabled:text-slate-500 text-slate-900 disabled:cursor-not-allowed font-semibold text-sm rounded-xl transition duration-200 active:scale-[0.99]">
+          <h3 class="text-xs font-semibold tracking-wider uppercase subtle" data-i18n="usageTitle">¿Cómo vas a usar Re+Active?</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button type="button" class="track trackBtn rounded-xl p-4 text-left space-y-1.5" data-track="personal" aria-pressed="true">
+              <div class="text-xl">🌱</div>
+              <div class="font-semibold text-[15px]" data-i18n="personalTitle">Para mí</div>
+              <div class="text-sm muted leading-snug" data-i18n="personalDesc">Quiero explorar lo que siento y ordenar mis ideas.</div>
+            </button>
+            <button type="button" class="track trackBtn rounded-xl p-4 text-left space-y-1.5" data-track="pro" aria-pressed="false">
+              <div class="text-xl">🩺</div>
+              <div class="font-semibold text-[15px]" data-i18n="proTitle">Soy profesional</div>
+              <div class="text-sm muted leading-snug" data-i18n="proDesc">Trabajo en salud mental y quiero usarlo como herramienta de apoyo.</div>
+            </button>
+          </div>
+          <p class="text-xs subtle leading-relaxed" data-i18n="proNote">
+            Esta elección solo ajusta el estilo de las respuestas y puedes cambiarla cuando quieras. Re+Active no verifica credenciales profesionales.
+          </p>
+        </div>
+
+        <!-- Auth -->
+        <div class="space-y-3">
+          <button id="googleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 font-semibold text-[15px] rounded-xl transition active:scale-[0.99]" style="background:#fff; color:#0f172a; border:1px solid var(--border)">
             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
             <span data-i18n="googleBtn">Continuar con Google</span>
           </button>
 
-          <!-- Apple: descomentar cuando tengas Apple Developer Program y el provider habilitado en Firebase
-          <button id="appleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-black hover:bg-slate-900 border border-slate-700 text-white font-semibold text-sm rounded-xl transition">
-             <span data-i18n="appleBtn">Continuar con Apple</span>
+          <button id="appleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 font-semibold text-[15px] rounded-xl transition active:scale-[0.99]" style="background: var(--apple-bg); color: var(--apple-fg); border:1px solid var(--border)">
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 12.53c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.19-1.73-1.36-.14-2.65.8-3.34.8-.69 0-1.75-.78-2.88-.76-1.48.02-2.85.86-3.61 2.18-1.54 2.67-.39 6.62 1.11 8.79.73 1.06 1.6 2.25 2.75 2.21 1.1-.05 1.52-.71 2.85-.71 1.33 0 1.71.71 2.88.69 1.19-.02 1.94-1.08 2.67-2.15.84-1.23 1.19-2.42 1.21-2.48-.03-.01-2.32-.89-2.34-3.53zM14.88 5.6c.61-.74 1.02-1.77.91-2.8-.88.04-1.94.59-2.57 1.32-.56.65-1.05 1.7-.92 2.7.98.08 1.98-.5 2.58-1.22z"/></svg>
+            <span data-i18n="appleBtn">Continuar con Apple</span>
           </button>
-          -->
 
-          <div class="flex items-center gap-3 text-[11px] text-slate-600">
-            <div class="flex-1 h-px bg-slate-800"></div>
+          <div class="flex items-center gap-3 text-xs subtle">
+            <div class="flex-1 h-px divider"></div>
             <span data-i18n="or">o</span>
-            <div class="flex-1 h-px bg-slate-800"></div>
+            <div class="flex-1 h-px divider"></div>
           </div>
 
           <div class="flex items-center gap-3">
-            <button id="back" class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-sm rounded-xl border border-slate-700/60 transition active:scale-[0.99]" data-i18n="back">
-              Atrás
-            </button>
-            <button id="enter" disabled class="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600 text-slate-200 disabled:cursor-not-allowed font-semibold text-sm rounded-xl border border-slate-700/60 transition duration-200 active:scale-[0.99]" data-i18n="guestBtn">
-              Continuar como invitado
-            </button>
+            <button id="back" class="btn-ghost py-3 px-4 font-medium text-[15px] rounded-xl transition active:scale-[0.99]" data-i18n="back">Atrás</button>
+            <button id="enter" disabled class="btn-ghost flex-1 py-3 px-4 font-semibold text-[15px] rounded-xl transition active:scale-[0.99]" data-i18n="guestBtn">Continuar como invitado</button>
           </div>
 
-          <p id="authError" class="hidden text-xs text-red-400 text-center"></p>
-          <p class="text-[11px] text-slate-500 text-center leading-relaxed" data-i18n="authNote">
+          <p id="authError" class="hidden text-sm text-center" style="color: var(--danger)"></p>
+          <p class="text-xs subtle text-center leading-relaxed" data-i18n="authNote">
             Con una cuenta podrás guardar y retomar tus conversaciones. Como invitado, la sesión se pierde al cerrar.
           </p>
         </div>
@@ -151,162 +258,161 @@
     </div>
   </div>
 
-  <!-- App Header -->
-  <header class="border-b border-slate-800/80 bg-slate-900/50 backdrop-blur-md px-4 py-3 sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3">
+  <!-- ===================== Header ===================== -->
+  <header class="bar border-b px-4 py-2.5 sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3" style="backdrop-filter: blur(8px)">
     <div class="flex items-center gap-2 cursor-pointer" id="homeLogo">
-      <div class="h-2.5 w-2.5 rounded-full bg-brand-400 animate-pulse"></div>
-      <h1 class="text-lg font-bold tracking-tight text-white">
-        <span class="text-brand-400">Re+</span>Active
+      <div class="h-2.5 w-2.5 rounded-full animate-pulse" style="background: var(--accent)"></div>
+      <h1 class="text-lg font-bold tracking-tight">
+        <span class="brandtext">Re+</span>Active
       </h1>
+      <span id="proBadge" class="hidden text-[11px] font-semibold px-2 py-0.5 rounded-full protext" style="background: color-mix(in srgb, var(--pro) 15%, transparent); border:1px solid color-mix(in srgb, var(--pro) 35%, transparent)" data-i18n="proBadge">Profesional</span>
     </div>
 
-    <div class="controls flex items-center gap-2 flex-wrap text-xs">
-      <!-- Mode: labeled so it's obvious what the dropdown controls -->
-      <label class="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 hover:border-slate-600 rounded-lg pl-2.5 pr-1 py-1 transition" data-i18n-title="modeHelp" title="">
-        <span class="text-slate-500 font-medium" data-i18n="modeLabel">Modo</span>
-        <select id="mode" class="bg-transparent text-slate-200 focus:outline-none cursor-pointer py-0.5">
+    <div class="flex items-center gap-2 flex-wrap text-[13px]">
+      <!-- Language first -->
+      <div class="flex items-center rounded-lg overflow-hidden" style="border:1px solid var(--border)">
+        <button data-setlang="es" aria-pressed="true" class="langbtn flex items-center gap-1.5 px-2 py-1.5 font-semibold" data-i18n-title="langHelp" title="">
+          <svg class="w-4 h-3 rounded-[2px] shrink-0" viewBox="0 0 9 6"><rect width="9" height="6" fill="#f4f5f0"/><rect width="3" height="6" fill="#4997d0"/><rect x="6" width="3" height="6" fill="#4997d0"/><circle cx="4.5" cy="3" r="1.05" fill="none" stroke="#3f7d3f" stroke-width=".5"/><rect x="4.35" y="1.75" width=".3" height="2.5" fill="#9b7a3a"/></svg>
+        </button>
+        <button data-setlang="en" aria-pressed="false" class="langbtn flex items-center gap-1.5 px-2 py-1.5 font-semibold" data-i18n-title="langHelp" title="">
+          <svg class="w-4 h-3 rounded-[2px] shrink-0" viewBox="0 0 19 10"><rect width="19" height="10" fill="#fff"/><g fill="#b22234"><rect width="19" height="1"/><rect y="2" width="19" height="1"/><rect y="4" width="19" height="1"/><rect y="6" width="19" height="1"/><rect y="8" width="19" height="1"/></g><rect width="8" height="5.4" fill="#3c3b6e"/></svg>
+        </button>
+      </div>
+
+      <label class="card flex items-center gap-1.5 rounded-lg pl-2.5 pr-1 py-1" data-i18n-title="modeHelp" title="">
+        <span class="subtle font-medium" data-i18n="modeLabel">Modo</span>
+        <select id="mode" class="bg-transparent focus:outline-none cursor-pointer py-0.5">
           <option value="explorer" data-i18n="modeExplorer">Explorar</option>
           <option value="professional" data-i18n="modeProfessional">Profesional</option>
         </select>
       </label>
 
-      <label class="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 hover:border-slate-600 rounded-lg pl-2.5 pr-1 py-1 transition" data-i18n-title="engineHelp" title="">
-        <span class="text-slate-500 font-medium" data-i18n="engineLabel">Motor</span>
-        <select id="provider" class="bg-transparent text-slate-200 focus:outline-none cursor-pointer py-0.5">
+      <label class="card flex items-center gap-1.5 rounded-lg pl-2.5 pr-1 py-1" data-i18n-title="engineHelp" title="">
+        <span class="subtle font-medium" data-i18n="engineLabel">Motor</span>
+        <select id="provider" class="bg-transparent focus:outline-none cursor-pointer py-0.5">
           <option value="claude">Claude</option>
           <option value="gemini">Gemini</option>
         </select>
       </label>
 
-      <button id="summary" class="btn flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" data-i18n-title="summaryHelp" title="">
+      <button id="summary" class="btn-ghost flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" data-i18n-title="summaryHelp" title="">
         <span>📋</span><span data-i18n="summaryBtn">Resumen</span>
       </button>
-      <button id="reset" class="btn flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" data-i18n-title="resetHelp" title="">
+      <button id="reset" class="btn-ghost flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" data-i18n-title="resetHelp" title="">
         <span>🔄</span><span data-i18n="resetBtn">Nuevo</span>
       </button>
 
-      <!-- Language switch -->
-      <div class="flex items-center rounded-lg border border-slate-700/80 overflow-hidden font-semibold">
-        <button data-setlang="es" class="langbtn px-2 py-1.5 transition">ES</button>
-        <button data-setlang="en" class="langbtn px-2 py-1.5 transition">EN</button>
-      </div>
-
-      <!-- User chip (hidden until logged in) -->
-      <div id="userChip" class="hidden items-center gap-2 bg-slate-900 border border-slate-700/80 rounded-lg pl-1.5 pr-2 py-1">
+      <div id="userChip" class="hidden items-center gap-2 card rounded-lg pl-1.5 pr-2 py-1">
         <img id="userAvatar" class="h-5 w-5 rounded-full" alt="" referrerpolicy="no-referrer">
-        <span id="userName" class="text-slate-300 max-w-[100px] truncate"></span>
-        <button id="signOut" data-i18n-title="signOutHelp" title="" class="text-slate-500 hover:text-red-400 transition font-bold">✕</button>
+        <span id="userName" class="muted max-w-[100px] truncate"></span>
+        <button id="signOut" data-i18n-title="signOutHelp" title="" class="subtle hover:opacity-70 transition font-bold">✕</button>
       </div>
     </div>
   </header>
 
-  <!-- Main Area -->
-  <main id="mainContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl w-full mx-auto space-y-6">
+  <!-- ===================== Main ===================== -->
+  <main id="mainContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 max-w-3xl w-full mx-auto">
 
-    <!-- Starter Panel -->
-    <section id="infoPanel" class="space-y-6">
+    <!-- Idle screen: composer sits high, right under the greeting -->
+    <section id="hero" class="space-y-6">
+      <div class="text-center space-y-2 pt-2">
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight" data-i18n="heroTitle">¿De qué quieres hablar hoy?</h2>
+        <p class="text-[15px] muted" data-i18n="heroSub">Escribe lo que tengas en mente, o elige un punto de partida.</p>
+      </div>
+
+      <!-- Composer lives here while idle -->
+      <div id="composerHome"></div>
 
       <div class="space-y-3">
-        <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase" data-i18n="startWhere">¿Por dónde quieres empezar?</h3>
+        <h3 class="text-xs font-semibold tracking-wider uppercase subtle" data-i18n="startWhere">¿Por dónde quieres empezar?</h3>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-
-          <button data-topic="feelings" class="topicBtn text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
-            <div class="text-brand-400 text-lg">💬</div>
-            <div class="font-semibold text-sm text-slate-200 group-hover:text-white" data-i18n="topic1Title">Explorar Emociones</div>
-            <div class="text-xs text-slate-400 leading-snug" data-i18n="topic1Desc">Procesa un sentimiento o situación actual de forma estructurada.</div>
+          <button data-topic="feelings" class="topicBtn card text-left rounded-xl p-4 space-y-2 transition hover:-translate-y-0.5" style="box-shadow: var(--shadow)">
+            <div class="text-lg accenttext">💬</div>
+            <div class="font-semibold text-[15px]" data-i18n="topic1Title">Explorar Emociones</div>
+            <div class="text-sm muted leading-snug" data-i18n="topic1Desc">Procesa un sentimiento o situación actual de forma estructurada.</div>
           </button>
-
-          <button data-topic="thoughts" class="topicBtn text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
-            <div class="text-brand-400 text-lg">🧠</div>
-            <div class="font-semibold text-sm text-slate-200 group-hover:text-white" data-i18n="topic2Title">Clarificar Pensamientos</div>
-            <div class="text-xs text-slate-400 leading-snug" data-i18n="topic2Desc">Desglosa un dilema o pensamiento recurrente para ganar perspectiva.</div>
+          <button data-topic="thoughts" class="topicBtn card text-left rounded-xl p-4 space-y-2 transition hover:-translate-y-0.5" style="box-shadow: var(--shadow)">
+            <div class="text-lg accenttext">🧠</div>
+            <div class="font-semibold text-[15px]" data-i18n="topic2Title">Clarificar Pensamientos</div>
+            <div class="text-sm muted leading-snug" data-i18n="topic2Desc">Desglosa un dilema o pensamiento recurrente para ganar perspectiva.</div>
           </button>
-
-          <button data-topic="conversation" class="topicBtn text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
-            <div class="text-brand-400 text-lg">🎯</div>
-            <div class="font-semibold text-sm text-slate-200 group-hover:text-white" data-i18n="topic3Title">Preparar Conversación</div>
-            <div class="text-xs text-slate-400 leading-snug" data-i18n="topic3Desc">Ensaya qué decir y cómo expresarlo de manera asertiva.</div>
+          <button data-topic="conversation" class="topicBtn card text-left rounded-xl p-4 space-y-2 transition hover:-translate-y-0.5" style="box-shadow: var(--shadow)">
+            <div class="text-lg accenttext">🎯</div>
+            <div class="font-semibold text-[15px]" data-i18n="topic3Title">Preparar Conversación</div>
+            <div class="text-sm muted leading-snug" data-i18n="topic3Desc">Ensaya qué decir y cómo expresarlo de manera asertiva.</div>
           </button>
-
         </div>
       </div>
 
-      <!-- Controls guide: makes the header buttons self-explanatory -->
       <div class="space-y-3">
-        <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase" data-i18n="controlsTitle">Los controles de arriba</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-
-          <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-3 flex gap-3">
+        <h3 class="text-xs font-semibold tracking-wider uppercase subtle" data-i18n="controlsTitle">Los controles de arriba</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="inset rounded-xl p-3 flex gap-3">
             <span class="text-base leading-none mt-0.5">🎚️</span>
             <div class="space-y-1">
-              <div class="font-semibold text-slate-200" data-i18n="guideModeTitle">Modo</div>
-              <p class="text-slate-400 leading-relaxed" data-i18n="guideModeDesc">Explorar te acompaña con preguntas abiertas. Profesional usa un marco más estructurado y técnico.</p>
+              <div class="font-semibold text-sm" data-i18n="guideModeTitle">Modo</div>
+              <p class="text-sm muted leading-relaxed" data-i18n="guideModeDesc">Explorar te acompaña con preguntas abiertas. Profesional usa un marco más estructurado y técnico.</p>
             </div>
           </div>
-
-          <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-3 flex gap-3">
+          <div class="inset rounded-xl p-3 flex gap-3">
             <span class="text-base leading-none mt-0.5">📋</span>
             <div class="space-y-1">
-              <div class="font-semibold text-slate-200" data-i18n="guideSummaryTitle">Resumen</div>
-              <p class="text-slate-400 leading-relaxed" data-i18n="guideSummaryDesc">Cuando ya hablaste un rato, genera un resumen de lo que descubriste para llevártelo.</p>
+              <div class="font-semibold text-sm" data-i18n="guideSummaryTitle">Resumen</div>
+              <p class="text-sm muted leading-relaxed" data-i18n="guideSummaryDesc">Cuando ya hablaste un rato, genera un resumen de lo que descubriste para llevártelo.</p>
             </div>
           </div>
-
-          <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-3 flex gap-3">
+          <div class="inset rounded-xl p-3 flex gap-3">
             <span class="text-base leading-none mt-0.5">🔄</span>
             <div class="space-y-1">
-              <div class="font-semibold text-slate-200" data-i18n="guideResetTitle">Nuevo</div>
-              <p class="text-slate-400 leading-relaxed" data-i18n="guideResetDesc">Borra la conversación actual y empieza desde cero con otro tema.</p>
+              <div class="font-semibold text-sm" data-i18n="guideResetTitle">Nuevo</div>
+              <p class="text-sm muted leading-relaxed" data-i18n="guideResetDesc">Borra la conversación actual y empieza desde cero con otro tema.</p>
             </div>
           </div>
-
-          <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-3 flex gap-3">
+          <div class="inset rounded-xl p-3 flex gap-3">
             <span class="text-base leading-none mt-0.5">🌐</span>
             <div class="space-y-1">
-              <div class="font-semibold text-slate-200" data-i18n="guideLangTitle">ES / EN · Motor</div>
-              <p class="text-slate-400 leading-relaxed" data-i18n="guideLangDesc">Cambia el idioma de la interfaz, o el motor de IA que responde (Claude o Gemini).</p>
+              <div class="font-semibold text-sm" data-i18n="guideLangTitle">Idioma · Motor</div>
+              <p class="text-sm muted leading-relaxed" data-i18n="guideLangDesc">Cambia el idioma de la interfaz, o el motor de IA que responde (Claude o Gemini).</p>
             </div>
           </div>
-
         </div>
       </div>
-
     </section>
 
-    <!-- Chat Messages Thread -->
+    <!-- Chat thread -->
     <div id="chat" class="space-y-4"></div>
-
   </main>
 
-  <!-- Footer Input Area -->
-  <footer class="border-t border-slate-800/80 bg-slate-900/30 backdrop-blur-md p-4 sticky bottom-0">
-    <div class="max-w-4xl mx-auto space-y-2">
-      <div class="inputrow flex items-end gap-2 bg-slate-900 border border-slate-800 focus-within:border-brand-500/60 focus-within:ring-2 focus-within:ring-brand-500/20 rounded-2xl p-2 transition">
-        <textarea id="input" rows="1" data-i18n-placeholder="inputPlaceholder" placeholder="Escribe tu mensaje o elige un tema arriba..." class="flex-1 bg-transparent border-0 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-0 resize-none max-h-32 px-2 py-1.5"></textarea>
-        <button id="send" data-i18n-title="sendHelp" title="" class="bg-brand-500 hover:bg-brand-600 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-bold rounded-xl p-2.5 flex items-center justify-center transition disabled:cursor-not-allowed shrink-0">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-          </svg>
-        </button>
-      </div>
-
-      <div class="disclaimer text-[11px] text-slate-500 text-center">
-        <span data-i18n="footerNote">Re+Active es una IA de acompañamiento, no terapia.</span>
-        <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-brand-400 transition underline underline-offset-2" data-i18n="crisisLink">Ayuda en crisis</a>
+  <!-- ===================== Footer ===================== -->
+  <footer class="bar border-t px-4 py-3 sticky bottom-0" style="backdrop-filter: blur(8px)">
+    <div class="max-w-3xl mx-auto space-y-2">
+      <!-- Composer docks here once the conversation starts -->
+      <div id="composerDock"></div>
+      <div class="text-xs subtle text-center">
+        <span data-i18n="footerNote">Re+Active es una IA de acompañamiento, no terapia. ·</span>
+        <a href="https://findahelpline.com" target="_blank" rel="noopener" class="muted hover:underline underline-offset-2" data-i18n="crisisLink">Ayuda en crisis</a>
       </div>
     </div>
   </footer>
 
-  <!-- Firebase Auth (modular SDK) -->
+  <!-- Composer template (moved between hero and footer) -->
+  <template id="composerTpl">
+    <div id="composer" class="field flex items-end gap-2 rounded-2xl p-2 transition">
+      <textarea id="input" rows="1" class="hint flex-1 bg-transparent border-0 text-[15px] focus:outline-none focus:ring-0 resize-none max-h-40 px-2 py-2" data-i18n-placeholder="inputHint" placeholder="Escribe aquí para empezar..."></textarea>
+      <button id="send" class="btn-accent font-bold rounded-xl p-2.5 flex items-center justify-center transition shrink-0" data-i18n-title="sendHelp" title="">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
+      </button>
+    </div>
+  </template>
+
+  <!-- ===================== Firebase Auth ===================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getAuth,
-      onAuthStateChanged,
-      signInWithPopup,
-      GoogleAuthProvider,
-      /* OAuthProvider, */ // ← para Apple más adelante
-      signOut
+      getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider,
+      OAuthProvider, signOut
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -324,22 +430,15 @@
 
     window.reactiveAuth = {
       currentUser: null,
-      async getToken() {
-        return auth.currentUser ? await auth.currentUser.getIdToken() : null;
-      },
-      async signInGoogle() {
-        const provider = new GoogleAuthProvider();
-        return signInWithPopup(auth, provider);
-      },
-      /* Apple (cuando esté habilitado en Firebase + Apple Developer):
+      async getToken() { return auth.currentUser ? await auth.currentUser.getIdToken() : null; },
+      async signInGoogle() { return signInWithPopup(auth, new GoogleAuthProvider()); },
       async signInApple() {
-        const provider = new OAuthProvider('apple.com');
+        const provider = new OAuthProvider("apple.com");
+        provider.addScope("email");
+        provider.addScope("name");
         return signInWithPopup(auth, provider);
       },
-      */
-      async signOut() {
-        return signOut(auth);
-      }
+      async signOut() { return signOut(auth); }
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -359,20 +458,29 @@
         intro: "Un espacio interactivo diseñado para ayudarte a procesar emociones, ordenar pensamientos complejos o preparar conversaciones importantes — con claridad y sin prisa.",
         howtoTitle: "Cómo aprovechar el chat",
         howto1: "Exprésate con total libertad y a tu propio ritmo.",
-        howto2: "Cambia entre modo Explorar o Profesional desde el selector superior.",
+        howto2: "Cambia entre modo Explorar o Profesional cuando quieras.",
         howto3: "Pide un Resumen en cualquier momento para consolidar tus hallazgos.",
         continue: "Continuar",
         beforeStart: "Antes de comenzar",
-        disclaimer: 'Re+Active es un programa de inteligencia artificial, no una persona ni un profesional de salud mental. No ofrece terapia, diagnóstico ni tratamiento. Si estás en crisis, contacta a los servicios de emergencia de tu país o visita <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">findahelpline.com</a>. Tus conversaciones se procesan mediante servicios de IA de terceros.',
+        disclaimer: 'Re+Active es un programa de inteligencia artificial, no una persona ni un profesional de salud mental. No ofrece terapia, diagnóstico ni tratamiento. Si estás en crisis, contacta a los servicios de emergencia de tu país o visita <a href="https://findahelpline.com" target="_blank" rel="noopener" class="brandtext hover:underline">findahelpline.com</a>. Tus conversaciones se procesan mediante servicios de IA de terceros.',
         consent: "Confirmo que tengo 18 años o más y entiendo lo anterior.",
+        usageTitle: "¿Cómo vas a usar Re+Active?",
+        personalTitle: "Para mí",
+        personalDesc: "Quiero explorar lo que siento y ordenar mis ideas.",
+        proTitle: "Soy profesional",
+        proDesc: "Trabajo en salud mental y quiero usarlo como herramienta de apoyo.",
+        proNote: "Esta elección solo ajusta el estilo de las respuestas y puedes cambiarla cuando quieras. Re+Active no verifica credenciales profesionales.",
+        proBadge: "Profesional",
         googleBtn: "Continuar con Google",
         appleBtn: "Continuar con Apple",
         or: "o",
         back: "Atrás",
         guestBtn: "Continuar como invitado",
         authNote: "Con una cuenta podrás guardar y retomar tus conversaciones. Como invitado, la sesión se pierde al cerrar.",
-        authFail: "No se pudo iniciar sesión con Google. Intenta de nuevo o entra como invitado.",
+        authFail: "No se pudo iniciar sesión con {provider}. Intenta de nuevo o entra como invitado.",
+        authUnavailable: "El inicio de sesión con {provider} aún no está habilitado. Usa otra opción o entra como invitado.",
 
+        langHelp: "Cambiar idioma / Change language",
         modeLabel: "Modo",
         modeExplorer: "Explorar",
         modeProfessional: "Profesional",
@@ -386,6 +494,9 @@
         signOutHelp: "Cerrar sesión",
         sendHelp: "Enviar mensaje (Enter)",
 
+        heroTitle: "¿De qué quieres hablar hoy?",
+        heroSub: "Escribe lo que tengas en mente, o elige un punto de partida.",
+        inputHint: "Escribe aquí para empezar...",
         startWhere: "¿Por dónde quieres empezar?",
         topic1Title: "Explorar Emociones",
         topic1Desc: "Procesa un sentimiento o situación actual de forma estructurada.",
@@ -401,13 +512,11 @@
         guideSummaryDesc: "Cuando ya hablaste un rato, genera un resumen de lo que descubriste para llevártelo.",
         guideResetTitle: "Nuevo",
         guideResetDesc: "Borra la conversación actual y empieza desde cero con otro tema.",
-        guideLangTitle: "ES / EN · Motor",
+        guideLangTitle: "Idioma · Motor",
         guideLangDesc: "Cambia el idioma de la interfaz, o el motor de IA que responde (Claude o Gemini).",
 
-        inputPlaceholder: "Escribe tu mensaje o elige un tema arriba...",
         footerNote: "Re+Active es una IA de acompañamiento, no terapia. ·",
         crisisLink: "Ayuda en crisis",
-
         thinking: "Pensando...",
         connError: "No pude conectar. Intenta de nuevo.",
         confirmReset: "¿Empezar una nueva conversación? Se perderá la actual.",
@@ -427,20 +536,29 @@
         intro: "An interactive space designed to help you process emotions, untangle complex thoughts, or prepare for important conversations — with clarity and without rushing.",
         howtoTitle: "Getting the most out of the chat",
         howto1: "Express yourself freely and at your own pace.",
-        howto2: "Switch between Explore and Professional mode using the selector above.",
+        howto2: "Switch between Explore and Professional mode whenever you like.",
         howto3: "Ask for a Summary at any time to consolidate what you've found.",
         continue: "Continue",
         beforeStart: "Before you begin",
-        disclaimer: 'Re+Active is an artificial intelligence program, not a person or a mental health professional. It does not provide therapy, diagnosis, or treatment. If you are in crisis, contact your local emergency services or visit <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">findahelpline.com</a>. Your conversations are processed through third-party AI services.',
+        disclaimer: 'Re+Active is an artificial intelligence program, not a person or a mental health professional. It does not provide therapy, diagnosis, or treatment. If you are in crisis, contact your local emergency services or visit <a href="https://findahelpline.com" target="_blank" rel="noopener" class="brandtext hover:underline">findahelpline.com</a>. Your conversations are processed through third-party AI services.',
         consent: "I confirm that I am 18 or older and understand the above.",
+        usageTitle: "How will you use Re+Active?",
+        personalTitle: "For myself",
+        personalDesc: "I want to explore what I'm feeling and sort out my thoughts.",
+        proTitle: "I'm a professional",
+        proDesc: "I work in mental health and want to use this as a supporting tool.",
+        proNote: "This choice only adjusts the style of the responses and you can change it anytime. Re+Active does not verify professional credentials.",
+        proBadge: "Professional",
         googleBtn: "Continue with Google",
         appleBtn: "Continue with Apple",
         or: "or",
         back: "Back",
         guestBtn: "Continue as guest",
         authNote: "With an account you can save and resume your conversations. As a guest, the session is lost when you close it.",
-        authFail: "Google sign-in failed. Please try again or continue as a guest.",
+        authFail: "{provider} sign-in failed. Please try again or continue as a guest.",
+        authUnavailable: "{provider} sign-in isn't enabled yet. Use another option or continue as a guest.",
 
+        langHelp: "Change language / Cambiar idioma",
         modeLabel: "Mode",
         modeExplorer: "Explore",
         modeProfessional: "Professional",
@@ -454,6 +572,9 @@
         signOutHelp: "Sign out",
         sendHelp: "Send message (Enter)",
 
+        heroTitle: "What would you like to talk about today?",
+        heroSub: "Write whatever is on your mind, or pick a starting point.",
+        inputHint: "Type here to start...",
         startWhere: "Where would you like to start?",
         topic1Title: "Explore Emotions",
         topic1Desc: "Work through a feeling or current situation in a structured way.",
@@ -469,13 +590,11 @@
         guideSummaryDesc: "Once you've talked for a while, generate a summary of what you discovered to take with you.",
         guideResetTitle: "New",
         guideResetDesc: "Clears the current conversation and starts fresh with another topic.",
-        guideLangTitle: "ES / EN · Engine",
+        guideLangTitle: "Language · Engine",
         guideLangDesc: "Change the interface language, or the AI engine that responds (Claude or Gemini).",
 
-        inputPlaceholder: "Type your message or pick a topic above...",
         footerNote: "Re+Active is an AI companion, not therapy. ·",
         crisisLink: "Crisis help",
-
         thinking: "Thinking...",
         connError: "Connection failed, please retry.",
         confirmReset: "Start a new conversation? The current one will be lost.",
@@ -490,7 +609,20 @@
       }
     };
 
-    // Saved preference → browser language → Spanish
+    // ---------- Mount the composer in the hero ----------
+    document.getElementById("composerHome")
+      .appendChild(document.getElementById("composerTpl").content.cloneNode(true));
+
+    const chat        = document.getElementById("chat");
+    const hero        = document.getElementById("hero");
+    const input       = document.getElementById("input");
+    const send        = document.getElementById("send");
+    const composer    = document.getElementById("composer");
+    const composerDock= document.getElementById("composerDock");
+    const authError   = document.getElementById("authError");
+    let messages = [];
+
+    // ---------- Language ----------
     let lang = localStorage.getItem("reactive_lang");
     if (lang !== "es" && lang !== "en") {
       lang = (navigator.language || "es").toLowerCase().startsWith("en") ? "en" : "es";
@@ -505,8 +637,7 @@
       document.querySelectorAll("[data-i18n]").forEach(el => {
         const val = I18N[lang][el.dataset.i18n];
         if (val === undefined) return;
-        if (el.dataset.i18nHtml === "1") el.innerHTML = val;
-        else el.textContent = val;
+        if (el.dataset.i18nHtml === "1") el.innerHTML = val; else el.textContent = val;
       });
       document.querySelectorAll("[data-i18n-title]").forEach(el => {
         const val = I18N[lang][el.dataset.i18nTitle];
@@ -516,60 +647,68 @@
         const val = I18N[lang][el.dataset.i18nPlaceholder];
         if (val !== undefined) el.placeholder = val;
       });
-
-      // Highlight the active language button
       document.querySelectorAll(".langbtn").forEach(b => {
-        const on = b.dataset.setlang === lang;
-        b.className = "langbtn px-2.5 py-1 transition " +
-          (on ? "bg-brand-500 text-slate-950" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800");
+        b.setAttribute("aria-pressed", String(b.dataset.setlang === lang));
       });
-
-      // Refresh any error message already on screen
-      if (!authError.classList.contains("hidden")) authError.textContent = t("authFail");
+      authError.classList.add("hidden"); // stale provider-specific message
     }
 
     document.querySelectorAll(".langbtn").forEach(btn => {
       btn.addEventListener("click", () => applyLang(btn.dataset.setlang));
     });
 
-    // ============================================================
-    //  App
-    // ============================================================
-    const chat = document.getElementById("chat");
-    const input = document.getElementById("input");
-    const send = document.getElementById("send");
-    const infoPanel = document.getElementById("infoPanel");
-    const authError = document.getElementById("authError");
-    let messages = []; // {role, text}
+    // ---------- Track: personal vs professional ----------
+    const modeSelect = document.getElementById("mode");
+    const proBadge   = document.getElementById("proBadge");
 
-    // --- onboarding ---
+    function setTrack(track) {
+      document.body.dataset.track = track;
+      document.querySelectorAll(".trackBtn").forEach(b => {
+        b.setAttribute("aria-pressed", String(b.dataset.track === track));
+      });
+      modeSelect.value = track === "pro" ? "professional" : "explorer";
+      proBadge.classList.toggle("hidden", track !== "pro");
+    }
+
+    document.querySelectorAll(".trackBtn").forEach(btn => {
+      btn.addEventListener("click", () => setTrack(btn.dataset.track));
+    });
+
+    // Header dropdown and the track stay in sync both ways
+    modeSelect.addEventListener("change", () => {
+      setTrack(modeSelect.value === "professional" ? "pro" : "personal");
+    });
+
+    // ---------- Onboarding ----------
     const step1 = document.getElementById("step1");
     const step2 = document.getElementById("step2");
-    const dot1 = document.getElementById("dot1");
-    const dot2 = document.getElementById("dot2");
-    const age = document.getElementById("age");
+    const dot1  = document.getElementById("dot1");
+    const dot2  = document.getElementById("dot2");
+    const age   = document.getElementById("age");
     const enter = document.getElementById("enter");
     const googleBtn = document.getElementById("googleBtn");
+    const appleBtn  = document.getElementById("appleBtn");
 
     document.getElementById("next").onclick = () => {
       step1.classList.add("hidden");
       step2.classList.remove("hidden");
-      dot1.classList.replace("bg-brand-400", "bg-slate-700");
-      dot2.classList.replace("bg-slate-700", "bg-brand-400");
+      dot1.style.background = "var(--border)";
+      dot2.style.background = "var(--accent)";
     };
 
     document.getElementById("back").onclick = () => {
       step2.classList.add("hidden");
       step1.classList.remove("hidden");
-      dot2.classList.replace("bg-brand-400", "bg-slate-700");
-      dot1.classList.replace("bg-slate-700", "bg-brand-400");
+      dot2.style.background = "var(--border)";
+      dot1.style.background = "var(--accent)";
     };
 
-    // Consent enables BOTH paths. Synced on load too: browsers restore the
-    // checkbox state after a reload but do NOT fire the 'change' event.
+    // Consent enables both paths. Synced on load too: browsers restore the
+    // checkbox after a reload but do NOT fire the 'change' event.
     function syncConsent() {
       enter.disabled = !age.checked;
       googleBtn.disabled = !age.checked;
+      appleBtn.disabled = !age.checked;
     }
     age.addEventListener("change", syncConsent);
 
@@ -581,21 +720,30 @@
 
     enter.onclick = closeGate;
 
-    googleBtn.onclick = async () => {
+    async function doSignIn(btn, method, providerName) {
       authError.classList.add("hidden");
       googleBtn.disabled = true;
+      appleBtn.disabled = true;
       try {
-        await window.reactiveAuth.signInGoogle();
+        await window.reactiveAuth[method]();
         closeGate();
       } catch (err) {
-        googleBtn.disabled = false;
-        authError.textContent = t("authFail");
+        syncConsent();
+        // The user closing the popup isn't an error worth shouting about
+        if (err && (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request")) return;
+        // Provider not yet enabled in the Firebase console
+        authError.textContent = (err && err.code === "auth/operation-not-allowed")
+          ? t("authUnavailable").replace("{provider}", providerName)
+          : t("authFail").replace("{provider}", providerName);
         authError.classList.remove("hidden");
-        console.error("Google sign-in error:", err);
+        console.error(providerName + " sign-in error:", err);
       }
-    };
+    }
 
-    // --- header user chip ---
+    googleBtn.onclick = () => doSignIn(googleBtn, "signInGoogle", "Google");
+    appleBtn.onclick  = () => doSignIn(appleBtn,  "signInApple",  "Apple");
+
+    // ---------- User chip ----------
     const userChip = document.getElementById("userChip");
     const userAvatar = document.getElementById("userAvatar");
     const userName = document.getElementById("userName");
@@ -618,41 +766,51 @@
       try { await window.reactiveAuth.signOut(); } catch (e) { console.error(e); }
     };
 
-    // Auto-grow textarea
-    input.addEventListener("input", function() {
+    // ---------- Composer behaviour ----------
+    input.addEventListener("input", function () {
       this.style.height = "auto";
-      this.style.height = (this.scrollHeight) + "px";
+      this.style.height = this.scrollHeight + "px";
+      // Stop the pulsing hint as soon as they type
+      this.classList.toggle("hint", this.value.length === 0);
     });
 
+    // Move the composer from the hero down to the footer when chat starts
     function startChatMode() {
-      if (infoPanel && !infoPanel.classList.contains("hidden")) {
-        infoPanel.classList.add("hidden");
-      }
+      if (hero.classList.contains("hidden")) return;
+      hero.classList.add("hidden");
+      composerDock.appendChild(composer);
     }
 
-    // Topic cards send the prompt in the currently selected language
+    // ...and back up to the hero when the conversation is cleared
+    function backToHero() {
+      hero.classList.remove("hidden");
+      document.getElementById("composerHome").appendChild(composer);
+      input.classList.add("hint");
+    }
+
     document.querySelectorAll(".topicBtn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        startChatMode();
-        sendMessage(I18N[lang].topicPrompts[btn.dataset.topic]);
-      });
+      btn.addEventListener("click", () => sendMessage(I18N[lang].topicPrompts[btn.dataset.topic]));
     });
 
     function add(role, text, thinking = false) {
       const wrapper = document.createElement("div");
-      wrapper.className = `flex ${role === "user" ? "justify-end" : "justify-start"} animate-in fade-in duration-200`;
+      wrapper.className = `flex ${role === "user" ? "justify-end" : "justify-start"}`;
 
       const div = document.createElement("div");
+      div.className = "max-w-[85%] sm:max-w-[78%] px-4 py-3 rounded-2xl text-[15px] sm:text-base leading-relaxed whitespace-pre-wrap";
 
       if (role === "user") {
-        div.className = "max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl bg-brand-600 text-white text-sm leading-relaxed rounded-br-xs shadow-md shadow-brand-900/20 whitespace-pre-wrap";
+        div.style.background = "var(--bubble-user)";
+        div.style.color = "var(--on-bubble)";
       } else {
-        div.className = "max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl bg-slate-900 border border-slate-800/80 text-slate-200 text-sm leading-relaxed rounded-bl-xs shadow-sm whitespace-pre-wrap";
+        div.style.background = "var(--surface)";
+        div.style.border = "1px solid var(--border)";
       }
 
       if (thinking) {
-        div.className += " text-slate-400 italic flex items-center gap-2";
-        div.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-brand-400 animate-ping"></span> <span></span>`;
+        div.className += " italic flex items-center gap-2";
+        div.style.color = "var(--muted)";
+        div.innerHTML = `<span class="inline-block w-2 h-2 rounded-full animate-ping" style="background: var(--accent)"></span> <span></span>`;
         div.lastElementChild.textContent = t("thinking");
       } else {
         div.textContent = text;
@@ -660,8 +818,8 @@
 
       wrapper.appendChild(div);
       chat.appendChild(wrapper);
-      const mainContainer = document.getElementById("mainContainer");
-      mainContainer.scrollTop = mainContainer.scrollHeight;
+      const mc = document.getElementById("mainContainer");
+      mc.scrollTop = mc.scrollHeight;
       return wrapper;
     }
 
@@ -674,9 +832,10 @@
 
       input.value = "";
       input.style.height = "auto";
+      input.classList.add("hint");
       send.disabled = true;
 
-      const thinkingBubble = add("bot", "", true);
+      const bubble = add("bot", "", true);
 
       try {
         const headers = { "content-type": "application/json" };
@@ -689,12 +848,12 @@
           body: JSON.stringify({
             messages,
             provider: document.getElementById("provider").value,
-            mode: document.getElementById("mode").value,
+            mode: modeSelect.value,
             lang
           })
         });
         const data = await res.json();
-        thinkingBubble.remove();
+        bubble.remove();
 
         if (data.error) {
           add("bot", data.error);
@@ -703,7 +862,7 @@
           messages.push({ role: "assistant", text: data.reply });
         }
       } catch {
-        thinkingBubble.remove();
+        bubble.remove();
         add("bot", t("connError"));
       }
 
@@ -713,10 +872,7 @@
 
     send.onclick = () => sendMessage(input.value);
     input.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage(input.value);
-      }
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input.value); }
     });
 
     document.getElementById("summary").onclick = () => sendMessage(I18N[lang].summaryPrompt);
@@ -725,15 +881,17 @@
       if (messages.length && !confirm(t("confirmReset"))) return;
       messages = [];
       chat.innerHTML = "";
-      infoPanel.classList.remove("hidden");
+      backToHero();
+      input.focus();
     };
 
     document.getElementById("homeLogo").onclick = () => {
-      if (!messages.length) infoPanel.classList.remove("hidden");
+      if (!messages.length) backToHero();
     };
 
-    // Initial paint
+    // ---------- Initial paint ----------
     applyLang(lang);
+    setTrack("personal");
     syncConsent();
   </script>
 </body>
