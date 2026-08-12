@@ -35,8 +35,6 @@
       --oauth-bg:    #ffffff;
       --oauth-fg:    #0f172a;
       --oauth-br:    #ffffff;
-      --apple-bg:    #ffffff;
-      --apple-fg:    #000000;
       --shadow:      0 10px 30px -12px rgba(0,0,0,.6);
     }
 
@@ -64,8 +62,6 @@
         --oauth-bg:    #ffffff;
         --oauth-fg:    #10302c;
         --oauth-br:    #bcd6d1;
-        --apple-bg:    #000000;
-        --apple-fg:    #ffffff;
         --shadow:      0 10px 28px -16px rgba(16,48,44,.35);
       }
     }
@@ -79,8 +75,11 @@
       color: var(--text);
       font-family: 'Inter', sans-serif;
       -webkit-font-smoothing: antialiased;
-      /* Larger base type: comfortable on mobile, not oversized */
-      font-size: 16px;
+      /* ===== TYPE SCALE KNOB =====
+         Every text size in the app is relative to this one value.
+         12px = 25% smaller than the previous 16px base.
+         Raise to 13px or 14px if it reads too small on your phone. */
+      font-size: 12px;
     }
 
     /* Semantic helpers */
@@ -126,6 +125,13 @@
       .hint::placeholder { animation: none; opacity: .8; }
     }
 
+    /* Onboarding modal: never taller than the viewport; its body scrolls
+       instead of the whole card overflowing off-screen. Uses dvh so mobile
+       browser chrome (address bar) doesn't cut it off. */
+    #gate .gate-body { max-height: calc(100dvh - 9rem); overflow-y: auto; overscroll-behavior: contain; }
+    #gate .gate-body::-webkit-scrollbar { width: 4px; }
+    #gate .gate-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
+
     #chat::-webkit-scrollbar { width: 6px; }
     #chat::-webkit-scrollbar-track { background: transparent; }
     #chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
@@ -135,8 +141,8 @@
 <body class="flex flex-col h-full">
 
   <!-- ===================== Onboarding ===================== -->
-  <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" style="background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px);">
-    <div class="card rounded-2xl p-6 sm:p-8 max-w-lg w-full space-y-6 my-8" style="box-shadow: var(--shadow)">
+  <div id="gate" class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto" style="background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom)) 1rem;">
+    <div class="card rounded-2xl p-5 sm:p-6 max-w-lg w-full space-y-4 m-auto" style="box-shadow: var(--shadow)">
 
       <!-- Top row: language first, then step dots -->
       <div class="flex items-center justify-between gap-4">
@@ -156,8 +162,10 @@
         </div>
       </div>
 
+      <div class="gate-body space-y-4">
+
       <!-- Step 1: Welcome -->
-      <div id="step1" class="space-y-6">
+      <div id="step1" class="space-y-4">
         <div class="space-y-3">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium accenttext" style="background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent)">
             <span data-i18n="badge">Acompañamiento Inteligente</span>
@@ -171,7 +179,7 @@
         </div>
 
         <div class="inset rounded-xl p-4 space-y-2">
-          <h4 class="font-semibold text-[15px] flex items-center gap-2">
+          <h4 class="font-semibold text-[0.9375rem] flex items-center gap-2">
             <span>✨</span> <span data-i18n="howtoTitle">Cómo aprovechar el chat</span>
           </h4>
           <ul class="muted text-sm space-y-1.5 list-disc list-inside leading-relaxed">
@@ -181,13 +189,13 @@
           </ul>
         </div>
 
-        <button id="next" class="btn-accent w-full py-3 px-4 font-semibold text-[15px] rounded-xl transition active:scale-[0.99]" data-i18n="continue">
+        <button id="next" class="btn-accent w-full py-3 px-4 font-semibold text-[0.9375rem] rounded-xl transition active:scale-[0.99]" data-i18n="continue">
           Continuar
         </button>
       </div>
 
       <!-- Step 2: Disclaimer + Track + Login -->
-      <div id="step2" class="hidden space-y-6">
+      <div id="step2" class="hidden space-y-4">
         <h2 class="text-xl font-bold tracking-tight flex items-center gap-2">
           <span>🛡️</span> <span data-i18n="beforeStart">Antes de comenzar</span>
         </h2>
@@ -211,12 +219,12 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button type="button" class="track trackBtn rounded-xl p-4 text-left space-y-1.5" data-track="personal" aria-pressed="true">
               <div class="text-xl">🌱</div>
-              <div class="font-semibold text-[15px]" data-i18n="personalTitle">Para mí</div>
+              <div class="font-semibold text-[0.9375rem]" data-i18n="personalTitle">Para mí</div>
               <div class="text-sm muted leading-snug" data-i18n="personalDesc">Quiero explorar lo que siento y ordenar mis ideas.</div>
             </button>
             <button type="button" class="track trackBtn rounded-xl p-4 text-left space-y-1.5" data-track="pro" aria-pressed="false">
               <div class="text-xl">🩺</div>
-              <div class="font-semibold text-[15px]" data-i18n="proTitle">Soy profesional</div>
+              <div class="font-semibold text-[0.9375rem]" data-i18n="proTitle">Soy profesional</div>
               <div class="text-sm muted leading-snug" data-i18n="proDesc">Trabajo en salud mental y quiero usarlo como herramienta de apoyo.</div>
             </button>
           </div>
@@ -227,15 +235,12 @@
 
         <!-- Auth -->
         <div class="space-y-3">
-          <button id="googleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 font-semibold text-[15px] rounded-xl transition active:scale-[0.99]" style="background:#fff; color:#0f172a; border:1px solid var(--border)">
+          <button id="googleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 font-semibold text-[0.9375rem] rounded-xl transition active:scale-[0.99]" style="background:#fff; color:#0f172a; border:1px solid var(--border)">
             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
             <span data-i18n="googleBtn">Continuar con Google</span>
           </button>
 
-          <button id="appleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 font-semibold text-[15px] rounded-xl transition active:scale-[0.99]" style="background: var(--apple-bg); color: var(--apple-fg); border:1px solid var(--border)">
-            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 12.53c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.71-3.19-1.73-1.36-.14-2.65.8-3.34.8-.69 0-1.75-.78-2.88-.76-1.48.02-2.85.86-3.61 2.18-1.54 2.67-.39 6.62 1.11 8.79.73 1.06 1.6 2.25 2.75 2.21 1.1-.05 1.52-.71 2.85-.71 1.33 0 1.71.71 2.88.69 1.19-.02 1.94-1.08 2.67-2.15.84-1.23 1.19-2.42 1.21-2.48-.03-.01-2.32-.89-2.34-3.53zM14.88 5.6c.61-.74 1.02-1.77.91-2.8-.88.04-1.94.59-2.57 1.32-.56.65-1.05 1.7-.92 2.7.98.08 1.98-.5 2.58-1.22z"/></svg>
-            <span data-i18n="appleBtn">Continuar con Apple</span>
-          </button>
+          
 
           <div class="flex items-center gap-3 text-xs subtle">
             <div class="flex-1 h-px divider"></div>
@@ -244,8 +249,8 @@
           </div>
 
           <div class="flex items-center gap-3">
-            <button id="back" class="btn-ghost py-3 px-4 font-medium text-[15px] rounded-xl transition active:scale-[0.99]" data-i18n="back">Atrás</button>
-            <button id="enter" disabled class="btn-ghost flex-1 py-3 px-4 font-semibold text-[15px] rounded-xl transition active:scale-[0.99]" data-i18n="guestBtn">Continuar como invitado</button>
+            <button id="back" class="btn-ghost py-3 px-4 font-medium text-[0.9375rem] rounded-xl transition active:scale-[0.99]" data-i18n="back">Atrás</button>
+            <button id="enter" disabled class="btn-ghost flex-1 py-3 px-4 font-semibold text-[0.9375rem] rounded-xl transition active:scale-[0.99]" data-i18n="guestBtn">Continuar como invitado</button>
           </div>
 
           <p id="authError" class="hidden text-sm text-center" style="color: var(--danger)"></p>
@@ -254,6 +259,8 @@
           </p>
         </div>
       </div>
+
+      </div><!-- /gate-body -->
 
     </div>
   </div>
@@ -265,10 +272,10 @@
       <h1 class="text-lg font-bold tracking-tight">
         <span class="brandtext">Re+</span>Active
       </h1>
-      <span id="proBadge" class="hidden text-[11px] font-semibold px-2 py-0.5 rounded-full protext" style="background: color-mix(in srgb, var(--pro) 15%, transparent); border:1px solid color-mix(in srgb, var(--pro) 35%, transparent)" data-i18n="proBadge">Profesional</span>
+      <span id="proBadge" class="hidden text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full protext" style="background: color-mix(in srgb, var(--pro) 15%, transparent); border:1px solid color-mix(in srgb, var(--pro) 35%, transparent)" data-i18n="proBadge">Profesional</span>
     </div>
 
-    <div class="flex items-center gap-2 flex-wrap text-[13px]">
+    <div class="flex items-center gap-2 flex-wrap text-[0.8125rem]">
       <!-- Language first -->
       <div class="flex items-center rounded-lg overflow-hidden" style="border:1px solid var(--border)">
         <button data-setlang="es" aria-pressed="true" class="langbtn flex items-center gap-1.5 px-2 py-1.5 font-semibold" data-i18n-title="langHelp" title="">
@@ -311,13 +318,13 @@
   </header>
 
   <!-- ===================== Main ===================== -->
-  <main id="mainContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 max-w-3xl w-full mx-auto">
+  <main id="mainContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-5 max-w-3xl w-full mx-auto">
 
     <!-- Idle screen: composer sits high, right under the greeting -->
-    <section id="hero" class="space-y-6">
+    <section id="hero" class="space-y-5">
       <div class="text-center space-y-2 pt-2">
         <h2 class="text-xl sm:text-2xl font-bold tracking-tight" data-i18n="heroTitle">¿De qué quieres hablar hoy?</h2>
-        <p class="text-[15px] muted" data-i18n="heroSub">Escribe lo que tengas en mente, o elige un punto de partida.</p>
+        <p class="text-[0.9375rem] muted" data-i18n="heroSub">Escribe lo que tengas en mente, o elige un punto de partida.</p>
       </div>
 
       <!-- Composer lives here while idle -->
@@ -328,17 +335,17 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button data-topic="feelings" class="topicBtn card text-left rounded-xl p-4 space-y-2 transition hover:-translate-y-0.5" style="box-shadow: var(--shadow)">
             <div class="text-lg accenttext">💬</div>
-            <div class="font-semibold text-[15px]" data-i18n="topic1Title">Explorar Emociones</div>
+            <div class="font-semibold text-[0.9375rem]" data-i18n="topic1Title">Explorar Emociones</div>
             <div class="text-sm muted leading-snug" data-i18n="topic1Desc">Procesa un sentimiento o situación actual de forma estructurada.</div>
           </button>
           <button data-topic="thoughts" class="topicBtn card text-left rounded-xl p-4 space-y-2 transition hover:-translate-y-0.5" style="box-shadow: var(--shadow)">
             <div class="text-lg accenttext">🧠</div>
-            <div class="font-semibold text-[15px]" data-i18n="topic2Title">Clarificar Pensamientos</div>
+            <div class="font-semibold text-[0.9375rem]" data-i18n="topic2Title">Clarificar Pensamientos</div>
             <div class="text-sm muted leading-snug" data-i18n="topic2Desc">Desglosa un dilema o pensamiento recurrente para ganar perspectiva.</div>
           </button>
           <button data-topic="conversation" class="topicBtn card text-left rounded-xl p-4 space-y-2 transition hover:-translate-y-0.5" style="box-shadow: var(--shadow)">
             <div class="text-lg accenttext">🎯</div>
-            <div class="font-semibold text-[15px]" data-i18n="topic3Title">Preparar Conversación</div>
+            <div class="font-semibold text-[0.9375rem]" data-i18n="topic3Title">Preparar Conversación</div>
             <div class="text-sm muted leading-snug" data-i18n="topic3Desc">Ensaya qué decir y cómo expresarlo de manera asertiva.</div>
           </button>
         </div>
@@ -398,7 +405,7 @@
   <!-- Composer template (moved between hero and footer) -->
   <template id="composerTpl">
     <div id="composer" class="field flex items-end gap-2 rounded-2xl p-2 transition">
-      <textarea id="input" rows="1" class="hint flex-1 bg-transparent border-0 text-[15px] focus:outline-none focus:ring-0 resize-none max-h-40 px-2 py-2" data-i18n-placeholder="inputHint" placeholder="Escribe aquí para empezar..."></textarea>
+      <textarea id="input" rows="1" class="hint flex-1 bg-transparent border-0 text-[0.9375rem] focus:outline-none focus:ring-0 resize-none max-h-40 px-2 py-2" data-i18n-placeholder="inputHint" placeholder="Escribe aquí para empezar..."></textarea>
       <button id="send" class="btn-accent font-bold rounded-xl p-2.5 flex items-center justify-center transition shrink-0" data-i18n-title="sendHelp" title="">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -411,8 +418,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider,
-      OAuthProvider, signOut
+      getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -432,12 +438,6 @@
       currentUser: null,
       async getToken() { return auth.currentUser ? await auth.currentUser.getIdToken() : null; },
       async signInGoogle() { return signInWithPopup(auth, new GoogleAuthProvider()); },
-      async signInApple() {
-        const provider = new OAuthProvider("apple.com");
-        provider.addScope("email");
-        provider.addScope("name");
-        return signInWithPopup(auth, provider);
-      },
       async signOut() { return signOut(auth); }
     };
 
@@ -472,7 +472,6 @@
         proNote: "Esta elección solo ajusta el estilo de las respuestas y puedes cambiarla cuando quieras. Re+Active no verifica credenciales profesionales.",
         proBadge: "Profesional",
         googleBtn: "Continuar con Google",
-        appleBtn: "Continuar con Apple",
         or: "o",
         back: "Atrás",
         guestBtn: "Continuar como invitado",
@@ -550,7 +549,6 @@
         proNote: "This choice only adjusts the style of the responses and you can change it anytime. Re+Active does not verify professional credentials.",
         proBadge: "Professional",
         googleBtn: "Continue with Google",
-        appleBtn: "Continue with Apple",
         or: "or",
         back: "Back",
         guestBtn: "Continue as guest",
@@ -687,7 +685,6 @@
     const age   = document.getElementById("age");
     const enter = document.getElementById("enter");
     const googleBtn = document.getElementById("googleBtn");
-    const appleBtn  = document.getElementById("appleBtn");
 
     document.getElementById("next").onclick = () => {
       step1.classList.add("hidden");
@@ -708,7 +705,6 @@
     function syncConsent() {
       enter.disabled = !age.checked;
       googleBtn.disabled = !age.checked;
-      appleBtn.disabled = !age.checked;
     }
     age.addEventListener("change", syncConsent);
 
@@ -720,10 +716,9 @@
 
     enter.onclick = closeGate;
 
-    async function doSignIn(btn, method, providerName) {
+    async function doSignIn(method, providerName) {
       authError.classList.add("hidden");
       googleBtn.disabled = true;
-      appleBtn.disabled = true;
       try {
         await window.reactiveAuth[method]();
         closeGate();
@@ -740,8 +735,7 @@
       }
     }
 
-    googleBtn.onclick = () => doSignIn(googleBtn, "signInGoogle", "Google");
-    appleBtn.onclick  = () => doSignIn(appleBtn,  "signInApple",  "Apple");
+    googleBtn.onclick = () => doSignIn("signInGoogle", "Google");
 
     // ---------- User chip ----------
     const userChip = document.getElementById("userChip");
@@ -797,7 +791,7 @@
       wrapper.className = `flex ${role === "user" ? "justify-end" : "justify-start"}`;
 
       const div = document.createElement("div");
-      div.className = "max-w-[85%] sm:max-w-[78%] px-4 py-3 rounded-2xl text-[15px] sm:text-base leading-relaxed whitespace-pre-wrap";
+      div.className = "max-w-[85%] sm:max-w-[78%] px-4 py-3 rounded-2xl text-[0.9375rem] sm:text-base leading-relaxed whitespace-pre-wrap";
 
       if (role === "user") {
         div.style.background = "var(--bubble-user)";
