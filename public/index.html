@@ -49,97 +49,100 @@
 </head>
 <body class="flex flex-col h-full bg-slate-950 text-slate-100 font-sans">
 
-  <!-- Unified Onboarding (Welcome → Consent + Login, 2 steps) -->
+  <!-- Unified Onboarding (Welcome → Consent + Login) -->
   <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 transition-all duration-300 overflow-y-auto">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 my-8">
 
-      <!-- Step indicator -->
-      <div class="flex items-center gap-2">
-        <div id="dot1" class="h-1.5 w-8 rounded-full bg-brand-400 transition-colors duration-300"></div>
-        <div id="dot2" class="h-1.5 w-8 rounded-full bg-slate-700 transition-colors duration-300"></div>
+      <!-- Top row: step dots + language switch -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div id="dot1" class="h-1.5 w-8 rounded-full bg-brand-400 transition-colors duration-300"></div>
+          <div id="dot2" class="h-1.5 w-8 rounded-full bg-slate-700 transition-colors duration-300"></div>
+        </div>
+        <div class="flex items-center rounded-lg border border-slate-700/80 overflow-hidden text-[11px] font-semibold">
+          <button data-setlang="es" class="langbtn px-2.5 py-1 transition">ES</button>
+          <button data-setlang="en" class="langbtn px-2.5 py-1 transition">EN</button>
+        </div>
       </div>
 
       <!-- Step 1: Welcome -->
       <div id="step1" class="space-y-6">
         <div class="space-y-3">
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium">
-            <span>Acompañamiento Inteligente</span>
+            <span data-i18n="badge">Acompañamiento Inteligente</span>
           </div>
           <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            Bienvenido a <span class="text-brand-400">Re+</span><span class="text-white">Active</span>
+            <span data-i18n="welcome">Bienvenido a</span> <span class="text-brand-400">Re+</span><span class="text-white">Active</span>
           </h2>
-          <p class="text-sm text-slate-300 leading-relaxed">
+          <p class="text-sm text-slate-300 leading-relaxed" data-i18n="intro">
             Un espacio interactivo diseñado para ayudarte a procesar emociones, ordenar pensamientos complejos o preparar conversaciones importantes — con claridad y sin prisa.
           </p>
         </div>
 
         <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 space-y-2 text-xs">
           <h4 class="font-semibold text-slate-200 text-sm flex items-center gap-2">
-            <span>✨</span> Cómo aprovechar el chat
+            <span>✨</span> <span data-i18n="howtoTitle">Cómo aprovechar el chat</span>
           </h4>
           <ul class="text-slate-400 space-y-1.5 list-disc list-inside leading-relaxed">
-            <li>Exprésate con total libertad y a tu propio ritmo.</li>
-            <li>Cambia entre modo <strong class="text-slate-300">Explorar</strong> o <strong class="text-slate-300">Profesional</strong> desde el selector superior.</li>
-            <li>Pide un <strong class="text-slate-300">Resumen</strong> en cualquier momento para consolidar tus hallazgos.</li>
+            <li data-i18n="howto1">Exprésate con total libertad y a tu propio ritmo.</li>
+            <li data-i18n="howto2">Cambia entre modo Explorar o Profesional desde el selector superior.</li>
+            <li data-i18n="howto3">Pide un Resumen en cualquier momento para consolidar tus hallazgos.</li>
           </ul>
         </div>
 
-        <button id="next" class="w-full py-3 px-4 bg-brand-500 hover:bg-brand-600 text-slate-950 font-semibold text-sm rounded-xl transition duration-200 shadow-lg shadow-brand-500/10 active:scale-[0.99]">
-          Continuar / Continue
+        <button id="next" class="w-full py-3 px-4 bg-brand-500 hover:bg-brand-600 text-slate-950 font-semibold text-sm rounded-xl transition duration-200 shadow-lg shadow-brand-500/10 active:scale-[0.99]" data-i18n="continue">
+          Continuar
         </button>
       </div>
 
       <!-- Step 2: Disclaimer + Consent + Login -->
       <div id="step2" class="hidden space-y-6">
-        <div class="space-y-2">
-          <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            <span>🛡️</span> Antes de comenzar
-          </h2>
-        </div>
+        <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+          <span>🛡️</span> <span data-i18n="beforeStart">Antes de comenzar</span>
+        </h2>
 
-        <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400 leading-relaxed space-y-2">
-          <p id="g2">
+        <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400 leading-relaxed">
+          <p data-i18n="disclaimer" data-i18n-html="1">
             Re+Active es un programa de inteligencia artificial, no una persona ni un profesional de salud mental. No ofrece terapia, diagnóstico ni tratamiento. Si estás en crisis, contacta a los servicios de emergencia de tu país o visita <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">findahelpline.com</a>. Tus conversaciones se procesan mediante servicios de IA de terceros.
           </p>
         </div>
 
         <label class="flex items-start gap-3 cursor-pointer group">
           <input type="checkbox" id="age" class="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-950 text-brand-500 focus:ring-brand-500/30 focus:ring-offset-slate-900 transition">
-          <span id="g3" class="text-xs text-slate-300 group-hover:text-slate-200 transition select-none">
+          <span class="text-xs text-slate-300 group-hover:text-slate-200 transition select-none" data-i18n="consent">
             Confirmo que tengo 18 años o más y entiendo lo anterior.
           </span>
         </label>
 
-        <!-- Auth options (disabled until consent) -->
-        <div id="authOptions" class="space-y-3">
+        <div class="space-y-3">
           <button id="googleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white hover:bg-slate-100 disabled:bg-slate-800 disabled:text-slate-500 text-slate-900 disabled:cursor-not-allowed font-semibold text-sm rounded-xl transition duration-200 active:scale-[0.99]">
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-            Continuar con Google
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            <span data-i18n="googleBtn">Continuar con Google</span>
           </button>
 
           <!-- Apple: descomentar cuando tengas Apple Developer Program y el provider habilitado en Firebase
-          <button id="appleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-black hover:bg-slate-900 border border-slate-700 disabled:bg-slate-800 disabled:text-slate-500 text-white disabled:cursor-not-allowed font-semibold text-sm rounded-xl transition duration-200 active:scale-[0.99]">
-             Continuar con Apple
+          <button id="appleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-black hover:bg-slate-900 border border-slate-700 text-white font-semibold text-sm rounded-xl transition">
+             <span data-i18n="appleBtn">Continuar con Apple</span>
           </button>
           -->
 
           <div class="flex items-center gap-3 text-[11px] text-slate-600">
             <div class="flex-1 h-px bg-slate-800"></div>
-            <span>o</span>
+            <span data-i18n="or">o</span>
             <div class="flex-1 h-px bg-slate-800"></div>
           </div>
 
           <div class="flex items-center gap-3">
-            <button id="back" class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-sm rounded-xl border border-slate-700/60 transition active:scale-[0.99]">
+            <button id="back" class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-sm rounded-xl border border-slate-700/60 transition active:scale-[0.99]" data-i18n="back">
               Atrás
             </button>
-            <button id="enter" disabled class="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600 text-slate-200 disabled:cursor-not-allowed font-semibold text-sm rounded-xl border border-slate-700/60 transition duration-200 active:scale-[0.99]">
+            <button id="enter" disabled class="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600 text-slate-200 disabled:cursor-not-allowed font-semibold text-sm rounded-xl border border-slate-700/60 transition duration-200 active:scale-[0.99]" data-i18n="guestBtn">
               Continuar como invitado
             </button>
           </div>
 
           <p id="authError" class="hidden text-xs text-red-400 text-center"></p>
-          <p class="text-[11px] text-slate-500 text-center leading-relaxed">
+          <p class="text-[11px] text-slate-500 text-center leading-relaxed" data-i18n="authNote">
             Con una cuenta podrás guardar y retomar tus conversaciones. Como invitado, la sesión se pierde al cerrar.
           </p>
         </div>
@@ -158,28 +161,41 @@
     </div>
 
     <div class="controls flex items-center gap-2 flex-wrap text-xs">
-      <select id="mode" title="Mode" class="bg-slate-900 border border-slate-700/80 hover:border-slate-600 text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500/40 cursor-pointer transition">
-        <option value="explorer">Explorar / Explore</option>
-        <option value="professional">Profesional / Professional</option>
-      </select>
+      <!-- Mode: labeled so it's obvious what the dropdown controls -->
+      <label class="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 hover:border-slate-600 rounded-lg pl-2.5 pr-1 py-1 transition" data-i18n-title="modeHelp" title="">
+        <span class="text-slate-500 font-medium" data-i18n="modeLabel">Modo</span>
+        <select id="mode" class="bg-transparent text-slate-200 focus:outline-none cursor-pointer py-0.5">
+          <option value="explorer" data-i18n="modeExplorer">Explorar</option>
+          <option value="professional" data-i18n="modeProfessional">Profesional</option>
+        </select>
+      </label>
 
-      <select id="provider" title="AI engine" class="bg-slate-900 border border-slate-700/80 hover:border-slate-600 text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500/40 cursor-pointer transition">
-        <option value="claude">Claude</option>
-        <option value="gemini">Gemini</option>
-      </select>
+      <label class="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 hover:border-slate-600 rounded-lg pl-2.5 pr-1 py-1 transition" data-i18n-title="engineHelp" title="">
+        <span class="text-slate-500 font-medium" data-i18n="engineLabel">Motor</span>
+        <select id="provider" class="bg-transparent text-slate-200 focus:outline-none cursor-pointer py-0.5">
+          <option value="claude">Claude</option>
+          <option value="gemini">Gemini</option>
+        </select>
+      </label>
 
-      <button class="btn bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" id="summary">
-        Resumen
+      <button id="summary" class="btn flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" data-i18n-title="summaryHelp" title="">
+        <span>📋</span><span data-i18n="summaryBtn">Resumen</span>
       </button>
-      <button class="btn bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" id="reset">
-        Nuevo
+      <button id="reset" class="btn flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" data-i18n-title="resetHelp" title="">
+        <span>🔄</span><span data-i18n="resetBtn">Nuevo</span>
       </button>
+
+      <!-- Language switch -->
+      <div class="flex items-center rounded-lg border border-slate-700/80 overflow-hidden font-semibold">
+        <button data-setlang="es" class="langbtn px-2 py-1.5 transition">ES</button>
+        <button data-setlang="en" class="langbtn px-2 py-1.5 transition">EN</button>
+      </div>
 
       <!-- User chip (hidden until logged in) -->
       <div id="userChip" class="hidden items-center gap-2 bg-slate-900 border border-slate-700/80 rounded-lg pl-1.5 pr-2 py-1">
         <img id="userAvatar" class="h-5 w-5 rounded-full" alt="" referrerpolicy="no-referrer">
         <span id="userName" class="text-slate-300 max-w-[100px] truncate"></span>
-        <button id="signOut" title="Cerrar sesión" class="text-slate-500 hover:text-red-400 transition font-bold">✕</button>
+        <button id="signOut" data-i18n-title="signOutHelp" title="" class="text-slate-500 hover:text-red-400 transition font-bold">✕</button>
       </div>
     </div>
   </header>
@@ -187,30 +203,74 @@
   <!-- Main Area -->
   <main id="mainContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl w-full mx-auto space-y-6">
 
-    <!-- Starter Panel (Visible after onboarding, before first message) -->
-    <section id="infoPanel" class="space-y-3">
-      <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase">¿Por dónde quieres empezar?</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <!-- Starter Panel -->
+    <section id="infoPanel" class="space-y-6">
 
-        <button onclick="startTopic('Quiero explorar algo que estoy sintiendo en este momento.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
-          <div class="text-brand-400 text-lg">💬</div>
-          <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Explorar Emociones</div>
-          <div class="text-xs text-slate-400 leading-snug">Procesa un sentimiento o situación actual de forma estructurada.</div>
-        </button>
+      <div class="space-y-3">
+        <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase" data-i18n="startWhere">¿Por dónde quieres empezar?</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
 
-        <button onclick="startTopic('Necesito ordenar mis ideas sobre un tema o decisión pendiente.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
-          <div class="text-brand-400 text-lg">🧠</div>
-          <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Clarificar Pensamientos</div>
-          <div class="text-xs text-slate-400 leading-snug">Desglosa un dilema o pensamiento recurrente para ganar perspectiva.</div>
-        </button>
+          <button data-topic="feelings" class="topicBtn text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
+            <div class="text-brand-400 text-lg">💬</div>
+            <div class="font-semibold text-sm text-slate-200 group-hover:text-white" data-i18n="topic1Title">Explorar Emociones</div>
+            <div class="text-xs text-slate-400 leading-snug" data-i18n="topic1Desc">Procesa un sentimiento o situación actual de forma estructurada.</div>
+          </button>
 
-        <button onclick="startTopic('Quiero preparar una conversación o interacción difícil.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
-          <div class="text-brand-400 text-lg">🎯</div>
-          <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Preparar Conversación</div>
-          <div class="text-xs text-slate-400 leading-snug">Ensaya qué decir y cómo expresarlo de manera asertiva.</div>
-        </button>
+          <button data-topic="thoughts" class="topicBtn text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
+            <div class="text-brand-400 text-lg">🧠</div>
+            <div class="font-semibold text-sm text-slate-200 group-hover:text-white" data-i18n="topic2Title">Clarificar Pensamientos</div>
+            <div class="text-xs text-slate-400 leading-snug" data-i18n="topic2Desc">Desglosa un dilema o pensamiento recurrente para ganar perspectiva.</div>
+          </button>
 
+          <button data-topic="conversation" class="topicBtn text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
+            <div class="text-brand-400 text-lg">🎯</div>
+            <div class="font-semibold text-sm text-slate-200 group-hover:text-white" data-i18n="topic3Title">Preparar Conversación</div>
+            <div class="text-xs text-slate-400 leading-snug" data-i18n="topic3Desc">Ensaya qué decir y cómo expresarlo de manera asertiva.</div>
+          </button>
+
+        </div>
       </div>
+
+      <!-- Controls guide: makes the header buttons self-explanatory -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase" data-i18n="controlsTitle">Los controles de arriba</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+
+          <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-3 flex gap-3">
+            <span class="text-base leading-none mt-0.5">🎚️</span>
+            <div class="space-y-1">
+              <div class="font-semibold text-slate-200" data-i18n="guideModeTitle">Modo</div>
+              <p class="text-slate-400 leading-relaxed" data-i18n="guideModeDesc">Explorar te acompaña con preguntas abiertas. Profesional usa un marco más estructurado y técnico.</p>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-3 flex gap-3">
+            <span class="text-base leading-none mt-0.5">📋</span>
+            <div class="space-y-1">
+              <div class="font-semibold text-slate-200" data-i18n="guideSummaryTitle">Resumen</div>
+              <p class="text-slate-400 leading-relaxed" data-i18n="guideSummaryDesc">Cuando ya hablaste un rato, genera un resumen de lo que descubriste para llevártelo.</p>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-3 flex gap-3">
+            <span class="text-base leading-none mt-0.5">🔄</span>
+            <div class="space-y-1">
+              <div class="font-semibold text-slate-200" data-i18n="guideResetTitle">Nuevo</div>
+              <p class="text-slate-400 leading-relaxed" data-i18n="guideResetDesc">Borra la conversación actual y empieza desde cero con otro tema.</p>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-3 flex gap-3">
+            <span class="text-base leading-none mt-0.5">🌐</span>
+            <div class="space-y-1">
+              <div class="font-semibold text-slate-200" data-i18n="guideLangTitle">ES / EN · Motor</div>
+              <p class="text-slate-400 leading-relaxed" data-i18n="guideLangDesc">Cambia el idioma de la interfaz, o el motor de IA que responde (Claude o Gemini).</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </section>
 
     <!-- Chat Messages Thread -->
@@ -222,8 +282,8 @@
   <footer class="border-t border-slate-800/80 bg-slate-900/30 backdrop-blur-md p-4 sticky bottom-0">
     <div class="max-w-4xl mx-auto space-y-2">
       <div class="inputrow flex items-end gap-2 bg-slate-900 border border-slate-800 focus-within:border-brand-500/60 focus-within:ring-2 focus-within:ring-brand-500/20 rounded-2xl p-2 transition">
-        <textarea id="input" rows="1" placeholder="Escribe tu mensaje o elige un tema arriba..." class="flex-1 bg-transparent border-0 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-0 resize-none max-h-32 px-2 py-1.5"></textarea>
-        <button id="send" class="bg-brand-500 hover:bg-brand-600 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-bold rounded-xl p-2.5 flex items-center justify-center transition disabled:cursor-not-allowed shrink-0">
+        <textarea id="input" rows="1" data-i18n-placeholder="inputPlaceholder" placeholder="Escribe tu mensaje o elige un tema arriba..." class="flex-1 bg-transparent border-0 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-0 resize-none max-h-32 px-2 py-1.5"></textarea>
+        <button id="send" data-i18n-title="sendHelp" title="" class="bg-brand-500 hover:bg-brand-600 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-bold rounded-xl p-2.5 flex items-center justify-center transition disabled:cursor-not-allowed shrink-0">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
           </svg>
@@ -231,8 +291,8 @@
       </div>
 
       <div class="disclaimer text-[11px] text-slate-500 text-center">
-        Re+Active es una IA de acompañamiento, no terapia. · Re+Active is an AI companion, not therapy. · 
-        <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-brand-400 transition underline underline-offset-2">Ayuda en crisis / Crisis help</a>
+        <span data-i18n="footerNote">Re+Active es una IA de acompañamiento, no terapia.</span>
+        <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-brand-400 transition underline underline-offset-2" data-i18n="crisisLink">Ayuda en crisis</a>
       </div>
     </div>
   </footer>
@@ -249,21 +309,19 @@
       signOut
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // ⚠️ REEMPLAZAR con tu config real de Firebase Console → Project settings → Web app
-	const firebaseConfig = {
-	apiKey: "AIzaSyAswo-t2Finbb2rJxj5XegacQCe6Zc7WWs",
-	authDomain: "reactive-c7d0c.firebaseapp.com",
-	projectId: "reactive-c7d0c",
-	storageBucket: "reactive-c7d0c.firebasestorage.app",
-	messagingSenderId: "486497092429",
-	appId: "1:486497092429:web:8271a34d25ef59b6186d04",
-	measurementId: "G-7N491TZ1HE"
-	};
+    const firebaseConfig = {
+      apiKey: "AIzaSyAswo-t2Finbb2rJxj5XegacQCe6Zc7WWs",
+      authDomain: "reactive-c7d0c.firebaseapp.com",
+      projectId: "reactive-c7d0c",
+      storageBucket: "reactive-c7d0c.firebasestorage.app",
+      messagingSenderId: "486497092429",
+      appId: "1:486497092429:web:8271a34d25ef59b6186d04",
+      measurementId: "G-7N491TZ1HE"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // Exponer una API mínima al script principal (no-module)
     window.reactiveAuth = {
       currentUser: null,
       async getToken() {
@@ -291,13 +349,200 @@
   </script>
 
   <script>
+    // ============================================================
+    //  i18n
+    // ============================================================
+    const I18N = {
+      es: {
+        badge: "Acompañamiento Inteligente",
+        welcome: "Bienvenido a",
+        intro: "Un espacio interactivo diseñado para ayudarte a procesar emociones, ordenar pensamientos complejos o preparar conversaciones importantes — con claridad y sin prisa.",
+        howtoTitle: "Cómo aprovechar el chat",
+        howto1: "Exprésate con total libertad y a tu propio ritmo.",
+        howto2: "Cambia entre modo Explorar o Profesional desde el selector superior.",
+        howto3: "Pide un Resumen en cualquier momento para consolidar tus hallazgos.",
+        continue: "Continuar",
+        beforeStart: "Antes de comenzar",
+        disclaimer: 'Re+Active es un programa de inteligencia artificial, no una persona ni un profesional de salud mental. No ofrece terapia, diagnóstico ni tratamiento. Si estás en crisis, contacta a los servicios de emergencia de tu país o visita <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">findahelpline.com</a>. Tus conversaciones se procesan mediante servicios de IA de terceros.',
+        consent: "Confirmo que tengo 18 años o más y entiendo lo anterior.",
+        googleBtn: "Continuar con Google",
+        appleBtn: "Continuar con Apple",
+        or: "o",
+        back: "Atrás",
+        guestBtn: "Continuar como invitado",
+        authNote: "Con una cuenta podrás guardar y retomar tus conversaciones. Como invitado, la sesión se pierde al cerrar.",
+        authFail: "No se pudo iniciar sesión con Google. Intenta de nuevo o entra como invitado.",
+
+        modeLabel: "Modo",
+        modeExplorer: "Explorar",
+        modeProfessional: "Profesional",
+        modeHelp: "Explorar: preguntas abiertas y acompañamiento. Profesional: marco más estructurado.",
+        engineLabel: "Motor",
+        engineHelp: "Elige qué modelo de IA responde a tus mensajes.",
+        summaryBtn: "Resumen",
+        summaryHelp: "Genera un resumen de lo que has explorado en esta conversación.",
+        resetBtn: "Nuevo",
+        resetHelp: "Borra esta conversación y empieza una nueva.",
+        signOutHelp: "Cerrar sesión",
+        sendHelp: "Enviar mensaje (Enter)",
+
+        startWhere: "¿Por dónde quieres empezar?",
+        topic1Title: "Explorar Emociones",
+        topic1Desc: "Procesa un sentimiento o situación actual de forma estructurada.",
+        topic2Title: "Clarificar Pensamientos",
+        topic2Desc: "Desglosa un dilema o pensamiento recurrente para ganar perspectiva.",
+        topic3Title: "Preparar Conversación",
+        topic3Desc: "Ensaya qué decir y cómo expresarlo de manera asertiva.",
+
+        controlsTitle: "Los controles de arriba",
+        guideModeTitle: "Modo",
+        guideModeDesc: "Explorar te acompaña con preguntas abiertas. Profesional usa un marco más estructurado y técnico.",
+        guideSummaryTitle: "Resumen",
+        guideSummaryDesc: "Cuando ya hablaste un rato, genera un resumen de lo que descubriste para llevártelo.",
+        guideResetTitle: "Nuevo",
+        guideResetDesc: "Borra la conversación actual y empieza desde cero con otro tema.",
+        guideLangTitle: "ES / EN · Motor",
+        guideLangDesc: "Cambia el idioma de la interfaz, o el motor de IA que responde (Claude o Gemini).",
+
+        inputPlaceholder: "Escribe tu mensaje o elige un tema arriba...",
+        footerNote: "Re+Active es una IA de acompañamiento, no terapia. ·",
+        crisisLink: "Ayuda en crisis",
+
+        thinking: "Pensando...",
+        connError: "No pude conectar. Intenta de nuevo.",
+        confirmReset: "¿Empezar una nueva conversación? Se perderá la actual.",
+        confirmSignOut: "¿Cerrar sesión? La conversación actual continúa como invitado.",
+
+        topicPrompts: {
+          feelings: "Quiero explorar algo que estoy sintiendo en este momento.",
+          thoughts: "Necesito ordenar mis ideas sobre un tema o decisión pendiente.",
+          conversation: "Quiero preparar una conversación o interacción difícil."
+        },
+        summaryPrompt: "Por favor, genera mi Resumen de Autoexploración según el documento 10."
+      },
+
+      en: {
+        badge: "Intelligent Companionship",
+        welcome: "Welcome to",
+        intro: "An interactive space designed to help you process emotions, untangle complex thoughts, or prepare for important conversations — with clarity and without rushing.",
+        howtoTitle: "Getting the most out of the chat",
+        howto1: "Express yourself freely and at your own pace.",
+        howto2: "Switch between Explore and Professional mode using the selector above.",
+        howto3: "Ask for a Summary at any time to consolidate what you've found.",
+        continue: "Continue",
+        beforeStart: "Before you begin",
+        disclaimer: 'Re+Active is an artificial intelligence program, not a person or a mental health professional. It does not provide therapy, diagnosis, or treatment. If you are in crisis, contact your local emergency services or visit <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">findahelpline.com</a>. Your conversations are processed through third-party AI services.',
+        consent: "I confirm that I am 18 or older and understand the above.",
+        googleBtn: "Continue with Google",
+        appleBtn: "Continue with Apple",
+        or: "or",
+        back: "Back",
+        guestBtn: "Continue as guest",
+        authNote: "With an account you can save and resume your conversations. As a guest, the session is lost when you close it.",
+        authFail: "Google sign-in failed. Please try again or continue as a guest.",
+
+        modeLabel: "Mode",
+        modeExplorer: "Explore",
+        modeProfessional: "Professional",
+        modeHelp: "Explore: open questions and companionship. Professional: a more structured framework.",
+        engineLabel: "Engine",
+        engineHelp: "Choose which AI model responds to your messages.",
+        summaryBtn: "Summary",
+        summaryHelp: "Generate a summary of what you've explored in this conversation.",
+        resetBtn: "New",
+        resetHelp: "Clear this conversation and start a new one.",
+        signOutHelp: "Sign out",
+        sendHelp: "Send message (Enter)",
+
+        startWhere: "Where would you like to start?",
+        topic1Title: "Explore Emotions",
+        topic1Desc: "Work through a feeling or current situation in a structured way.",
+        topic2Title: "Clarify Thoughts",
+        topic2Desc: "Break down a dilemma or recurring thought to gain perspective.",
+        topic3Title: "Prepare a Conversation",
+        topic3Desc: "Rehearse what to say and how to express it assertively.",
+
+        controlsTitle: "The controls above",
+        guideModeTitle: "Mode",
+        guideModeDesc: "Explore accompanies you with open questions. Professional uses a more structured, technical framework.",
+        guideSummaryTitle: "Summary",
+        guideSummaryDesc: "Once you've talked for a while, generate a summary of what you discovered to take with you.",
+        guideResetTitle: "New",
+        guideResetDesc: "Clears the current conversation and starts fresh with another topic.",
+        guideLangTitle: "ES / EN · Engine",
+        guideLangDesc: "Change the interface language, or the AI engine that responds (Claude or Gemini).",
+
+        inputPlaceholder: "Type your message or pick a topic above...",
+        footerNote: "Re+Active is an AI companion, not therapy. ·",
+        crisisLink: "Crisis help",
+
+        thinking: "Thinking...",
+        connError: "Connection failed, please retry.",
+        confirmReset: "Start a new conversation? The current one will be lost.",
+        confirmSignOut: "Sign out? The current conversation continues as a guest.",
+
+        topicPrompts: {
+          feelings: "I want to explore something I'm feeling right now.",
+          thoughts: "I need to sort out my thoughts about a topic or a pending decision.",
+          conversation: "I want to prepare for a difficult conversation or interaction."
+        },
+        summaryPrompt: "Please generate my Self-Exploration Summary per document 10."
+      }
+    };
+
+    // Saved preference → browser language → Spanish
+    let lang = localStorage.getItem("reactive_lang");
+    if (lang !== "es" && lang !== "en") {
+      lang = (navigator.language || "es").toLowerCase().startsWith("en") ? "en" : "es";
+    }
+    const t = (key) => I18N[lang][key] ?? key;
+
+    function applyLang(next) {
+      lang = next;
+      localStorage.setItem("reactive_lang", lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const val = I18N[lang][el.dataset.i18n];
+        if (val === undefined) return;
+        if (el.dataset.i18nHtml === "1") el.innerHTML = val;
+        else el.textContent = val;
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach(el => {
+        const val = I18N[lang][el.dataset.i18nTitle];
+        if (val !== undefined) el.title = val;
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const val = I18N[lang][el.dataset.i18nPlaceholder];
+        if (val !== undefined) el.placeholder = val;
+      });
+
+      // Highlight the active language button
+      document.querySelectorAll(".langbtn").forEach(b => {
+        const on = b.dataset.setlang === lang;
+        b.className = "langbtn px-2.5 py-1 transition " +
+          (on ? "bg-brand-500 text-slate-950" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800");
+      });
+
+      // Refresh any error message already on screen
+      if (!authError.classList.contains("hidden")) authError.textContent = t("authFail");
+    }
+
+    document.querySelectorAll(".langbtn").forEach(btn => {
+      btn.addEventListener("click", () => applyLang(btn.dataset.setlang));
+    });
+
+    // ============================================================
+    //  App
+    // ============================================================
     const chat = document.getElementById("chat");
     const input = document.getElementById("input");
     const send = document.getElementById("send");
     const infoPanel = document.getElementById("infoPanel");
+    const authError = document.getElementById("authError");
     let messages = []; // {role, text}
 
-    // --- unified onboarding (2 steps) ---
+    // --- onboarding ---
     const step1 = document.getElementById("step1");
     const step2 = document.getElementById("step2");
     const dot1 = document.getElementById("dot1");
@@ -305,7 +550,6 @@
     const age = document.getElementById("age");
     const enter = document.getElementById("enter");
     const googleBtn = document.getElementById("googleBtn");
-    const authError = document.getElementById("authError");
 
     document.getElementById("next").onclick = () => {
       step1.classList.add("hidden");
@@ -321,11 +565,13 @@
       dot1.classList.replace("bg-slate-700", "bg-brand-400");
     };
 
-    // El consentimiento habilita AMBAS rutas: Google e invitado
-    age.onchange = () => {
+    // Consent enables BOTH paths. Synced on load too: browsers restore the
+    // checkbox state after a reload but do NOT fire the 'change' event.
+    function syncConsent() {
       enter.disabled = !age.checked;
       googleBtn.disabled = !age.checked;
-    };
+    }
+    age.addEventListener("change", syncConsent);
 
     function closeGate() {
       const gate = document.getElementById("gate");
@@ -333,10 +579,8 @@
       input.focus();
     }
 
-    // Invitado
     enter.onclick = closeGate;
 
-    // Google
     googleBtn.onclick = async () => {
       authError.classList.add("hidden");
       googleBtn.disabled = true;
@@ -345,7 +589,7 @@
         closeGate();
       } catch (err) {
         googleBtn.disabled = false;
-        authError.textContent = "No se pudo iniciar sesión con Google. Intenta de nuevo o entra como invitado.";
+        authError.textContent = t("authFail");
         authError.classList.remove("hidden");
         console.error("Google sign-in error:", err);
       }
@@ -360,7 +604,7 @@
       const user = e.detail;
       if (user) {
         userAvatar.src = user.photoURL || "";
-        userName.textContent = user.displayName || user.email || "Usuario";
+        userName.textContent = user.displayName || user.email || "";
         userChip.classList.remove("hidden");
         userChip.classList.add("flex");
       } else {
@@ -370,34 +614,36 @@
     });
 
     document.getElementById("signOut").onclick = async () => {
-      if (messages.length && !confirm("¿Cerrar sesión? La conversación actual continúa como invitado.")) return;
+      if (messages.length && !confirm(t("confirmSignOut"))) return;
       try { await window.reactiveAuth.signOut(); } catch (e) { console.error(e); }
     };
 
-    // Auto-grow textarea height on input
+    // Auto-grow textarea
     input.addEventListener("input", function() {
       this.style.height = "auto";
       this.style.height = (this.scrollHeight) + "px";
     });
 
-    // Hide starter panel when chat starts
     function startChatMode() {
       if (infoPanel && !infoPanel.classList.contains("hidden")) {
         infoPanel.classList.add("hidden");
       }
     }
 
-    function startTopic(promptText) {
-      startChatMode();
-      sendMessage(promptText);
-    }
+    // Topic cards send the prompt in the currently selected language
+    document.querySelectorAll(".topicBtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        startChatMode();
+        sendMessage(I18N[lang].topicPrompts[btn.dataset.topic]);
+      });
+    });
 
     function add(role, text, thinking = false) {
       const wrapper = document.createElement("div");
       wrapper.className = `flex ${role === "user" ? "justify-end" : "justify-start"} animate-in fade-in duration-200`;
 
       const div = document.createElement("div");
-      
+
       if (role === "user") {
         div.className = "max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl bg-brand-600 text-white text-sm leading-relaxed rounded-br-xs shadow-md shadow-brand-900/20 whitespace-pre-wrap";
       } else {
@@ -406,7 +652,8 @@
 
       if (thinking) {
         div.className += " text-slate-400 italic flex items-center gap-2";
-        div.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-brand-400 animate-ping"></span> Pensando... / Thinking...`;
+        div.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-brand-400 animate-ping"></span> <span></span>`;
+        div.lastElementChild.textContent = t("thinking");
       } else {
         div.textContent = text;
       }
@@ -421,18 +668,17 @@
     async function sendMessage(text) {
       if (!text.trim()) return;
       startChatMode();
-      
+
       add("user", text);
       messages.push({ role: "user", text });
-      
-      input.value = ""; 
-      input.style.height = "auto"; 
+
+      input.value = "";
+      input.style.height = "auto";
       send.disabled = true;
 
-      const t = add("bot", "", true);
+      const thinkingBubble = add("bot", "", true);
 
       try {
-        // Si hay sesión, adjuntar el ID token para que el backend lo verifique
         const headers = { "content-type": "application/json" };
         const token = window.reactiveAuth ? await window.reactiveAuth.getToken() : null;
         if (token) headers["authorization"] = "Bearer " + token;
@@ -443,50 +689,52 @@
           body: JSON.stringify({
             messages,
             provider: document.getElementById("provider").value,
-            mode: document.getElementById("mode").value
+            mode: document.getElementById("mode").value,
+            lang
           })
         });
         const data = await res.json();
-        t.remove();
+        thinkingBubble.remove();
 
-        if (data.error) { 
-          add("bot", data.error); 
+        if (data.error) {
+          add("bot", data.error);
         } else {
           add("bot", data.reply);
           messages.push({ role: "assistant", text: data.reply });
         }
       } catch {
-        t.remove();
-        add("bot", "No pude conectar. Intenta de nuevo. / Connection failed, please retry.");
+        thinkingBubble.remove();
+        add("bot", t("connError"));
       }
 
-      send.disabled = false; 
+      send.disabled = false;
       input.focus();
     }
 
     send.onclick = () => sendMessage(input.value);
     input.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !e.shiftKey) { 
-        e.preventDefault(); 
-        sendMessage(input.value); 
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(input.value);
       }
     });
 
-    document.getElementById("summary").onclick = () =>
-      sendMessage("Por favor, genera mi Resumen de Autoexploración según el documento 10. / Please generate my Self-Exploration Summary per document 10.");
+    document.getElementById("summary").onclick = () => sendMessage(I18N[lang].summaryPrompt);
 
     document.getElementById("reset").onclick = () => {
-      if (messages.length && !confirm("¿Empezar una nueva conversación? Se perderá la actual. / Start a new conversation?")) return;
-      messages = []; 
+      if (messages.length && !confirm(t("confirmReset"))) return;
+      messages = [];
       chat.innerHTML = "";
       infoPanel.classList.remove("hidden");
     };
 
     document.getElementById("homeLogo").onclick = () => {
-      if (!messages.length) {
-        infoPanel.classList.remove("hidden");
-      }
+      if (!messages.length) infoPanel.classList.remove("hidden");
     };
+
+    // Initial paint
+    applyLang(lang);
+    syncConsent();
   </script>
 </body>
 </html>
