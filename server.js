@@ -10,6 +10,43 @@ const app = express();
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
+// ---------- Firebase Admin (optional auth) ----------
+// Login is OPTIONAL: requests without a token are treated as guests.
+// Requires env var FIREBASE_SERVICE_ACCOUNT with the JSON of a service
+// account key (Firebase Console → Project settings → Service accounts →
+// Generate new private key). If the var is missing, auth is disabled and
+// everything works as guest — the app never breaks because of this.
+let firebaseAuth = null;
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    const admin = require("firebase-admin");
+    admin.initializeApp({
+      credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
+    });
+    firebaseAuth = admin.auth();
+    console.log("Firebase Admin initialized — token verification enabled");
+  } else {
+    console.log("FIREBASE_SERVICE_ACCOUNT not set — running in guest-only mode");
+  }
+} catch (err) {
+  console.error("Firebase Admin init failed — running in guest-only mode:", err.message);
+}
+
+// Middleware: verify Bearer token if present; never blocks the request.
+async function attachUser(req, _res, next) {
+  req.user = null;
+  const header = req.headers.authorization || "";
+  if (firebaseAuth && header.startsWith("Bearer ")) {
+    try {
+      req.user = await firebaseAuth.verifyIdToken(header.slice(7));
+    } catch {
+      // Invalid/expired token → treat as guest, don't fail the request
+      req.user = null;
+    }
+  }
+  next();
+}
+
 // ---------- Load the Re+Active knowledge documents ----------
 // Every .md file in /prompts is concatenated (sorted by filename: 00, 01, 02...)
 // into one system prompt. Drop your canonical 01-08 files into /prompts.
@@ -69,11 +106,16 @@ async function askGemini(messages, modeNote) {
 
 // ---------- Chat endpoint ----------
 // body: { messages: [{role:'user'|'assistant', text}], provider: 'claude'|'gemini', mode: 'explorer'|'professional' }
-app.post("/api/chat", async (req, res) => {
+// Optional header: Authorization: Bearer <Firebase ID token> → req.user.{uid,email,name}
+app.post("/api/chat", attachUser, async (req, res) => {
   try {
     const { messages, provider = "claude", mode = "explorer" } = req.body;
     if (!Array.isArray(messages) || messages.length === 0)
       return res.status(400).json({ error: "messages required" });
+
+    // req.user is available here for future per-user features
+    // (e.g., saving conversation history keyed by req.user.uid).
+    if (req.user) console.log(`Chat request from authenticated user: ${req.user.uid}`);
 
     const modeNote = `\n\n<app_context>Active mode set by the user in the app: ${
       mode === "professional" ? "PROFESSIONAL MODE (file 09 governs)" : "EXPLORER MODE (default)"
