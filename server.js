@@ -13,9 +13,8 @@ app.use(express.static(path.join(__dirname, "public")));
 // ---------- Firebase Admin (optional auth) ----------
 // Login is OPTIONAL: requests without a token are treated as guests.
 // Requires env var FIREBASE_SERVICE_ACCOUNT with the JSON of a service
-// account key (Firebase Console → Project settings → Service accounts →
-// Generate new private key). If the var is missing, auth is disabled and
-// everything works as guest — the app never breaks because of this.
+// account key. If the var is missing, auth is disabled and everything
+// works as guest — the app never breaks because of this.
 let firebaseAuth = null;
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
@@ -40,8 +39,7 @@ async function attachUser(req, _res, next) {
     try {
       req.user = await firebaseAuth.verifyIdToken(header.slice(7));
     } catch {
-      // Invalid/expired token → treat as guest, don't fail the request
-      req.user = null;
+      req.user = null; // invalid/expired token → treat as guest
     }
   }
   next();
@@ -65,7 +63,7 @@ console.log(`Loaded system prompt from /prompts (${SYSTEM_PROMPT.length} chars)`
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
-async function askClaude(messages, modeNote) {
+async function askClaude(messages, contextNote) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -76,7 +74,7 @@ async function askClaude(messages, modeNote) {
     body: JSON.stringify({
       model: CLAUDE_MODEL,
       max_tokens: 1024,
-      system: SYSTEM_PROMPT + modeNote,
+      system: SYSTEM_PROMPT + contextNote,
       messages: messages.map(m => ({ role: m.role, content: m.text }))
     })
   });
@@ -85,13 +83,13 @@ async function askClaude(messages, modeNote) {
   return data.content.map(c => c.text || "").join("");
 }
 
-async function askGemini(messages, modeNote) {
+async function askGemini(messages, contextNote) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT + modeNote }] },
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT + contextNote }] },
       contents: messages.map(m => ({
         role: m.role === "assistant" ? "model" : "user",
         parts: [{ text: m.text }]
@@ -105,11 +103,12 @@ async function askGemini(messages, modeNote) {
 }
 
 // ---------- Chat endpoint ----------
-// body: { messages: [{role:'user'|'assistant', text}], provider: 'claude'|'gemini', mode: 'explorer'|'professional' }
+// body: { messages: [{role,text}], provider: 'claude'|'gemini',
+//         mode: 'explorer'|'professional', lang: 'es'|'en' }
 // Optional header: Authorization: Bearer <Firebase ID token> → req.user.{uid,email,name}
 app.post("/api/chat", attachUser, async (req, res) => {
   try {
-    const { messages, provider = "claude", mode = "explorer" } = req.body;
+    const { messages, provider = "claude", mode = "explorer", lang = "es" } = req.body;
     if (!Array.isArray(messages) || messages.length === 0)
       return res.status(400).json({ error: "messages required" });
 
@@ -117,18 +116,23 @@ app.post("/api/chat", attachUser, async (req, res) => {
     // (e.g., saving conversation history keyed by req.user.uid).
     if (req.user) console.log(`Chat request from authenticated user: ${req.user.uid}`);
 
-    const modeNote = `\n\n<app_context>Active mode set by the user in the app: ${
+    const language = lang === "en" ? "English" : "Spanish";
+    const contextNote = `\n\n<app_context>Active mode set by the user in the app: ${
       mode === "professional" ? "PROFESSIONAL MODE (file 09 governs)" : "EXPLORER MODE (default)"
-    }. This is an app conversation: keep responses concise.</app_context>`;
+    }. The user has selected ${language} as their interface language — reply in ${language} unless they clearly write in another language, in which case follow their lead. This is an app conversation: keep responses concise.</app_context>`;
 
     const reply = provider === "gemini"
-      ? await askGemini(messages, modeNote)
-      : await askClaude(messages, modeNote);
+      ? await askGemini(messages, contextNote)
+      : await askClaude(messages, contextNote);
 
     res.json({ reply });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "The conversation service is unavailable right now. Please try again." });
+    res.status(500).json({
+      error: lang === "en"
+        ? "The conversation service is unavailable right now. Please try again."
+        : "El servicio de conversación no está disponible en este momento. Intenta de nuevo."
+    });
   }
 });
 
