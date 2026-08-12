@@ -50,7 +50,7 @@
 <body class="flex flex-col h-full bg-slate-950 text-slate-100 font-sans">
 
   <!-- Onboarding Modal / Gate -->
-  <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 transition-all duration-300">
+  <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 transition-all duration-300">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
       <div class="space-y-2">
         <h2 class="text-2xl font-bold tracking-tight text-white">
@@ -84,7 +84,7 @@
 
   <!-- App Header -->
   <header class="border-b border-slate-800/80 bg-slate-900/50 backdrop-blur-md px-4 py-3 sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3">
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 cursor-pointer" id="homeLogo">
       <div class="h-2.5 w-2.5 rounded-full bg-brand-400 animate-pulse"></div>
       <h1 class="text-lg font-bold tracking-tight text-white">
         <span class="text-brand-400">Re+</span>Active
@@ -111,14 +111,86 @@
     </div>
   </header>
 
-  <!-- Chat Area -->
-  <main id="chat" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 max-w-4xl w-full mx-auto"></main>
+  <!-- Main Area -->
+  <main id="mainContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl w-full mx-auto space-y-6">
+
+    <!-- Information & Welcome Section (Visible initially) -->
+    <section id="infoPanel" class="space-y-6">
+      
+      <!-- Hero Banner -->
+      <div class="bg-gradient-to-b from-slate-900 to-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-4 shadow-xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium">
+          <span>Acompañamiento Inteligente</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          Bienvenido a <span class="text-brand-400">Re+Active</span>
+        </h2>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+          Un espacio interactivo diseñado para ayudarte a procesar emociones, ordenar pensamientos complejos o preparar conversaciones importantes. No sustituye la ayuda profesional, pero está aquí para escucharte y guiarte con estructura.
+        </p>
+      </div>
+
+      <!-- Quick Topics / Starter Cards -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase">¿Por dónde quieres empezar?</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          
+          <button onclick="startTopic('Quiero explorar algo que estoy sintiendo en este momento.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
+            <div class="text-brand-400 text-lg">💬</div>
+            <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Explorar Emociones</div>
+            <div class="text-xs text-slate-400 leading-snug">Procesa un sentimiento o situación actual de forma estructurada.</div>
+          </button>
+
+          <button onclick="startTopic('Necesito ordenar mis ideas sobre un tema o decisión pendiente.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
+            <div class="text-brand-400 text-lg">🧠</div>
+            <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Clarificar Pensamientos</div>
+            <div class="text-xs text-slate-400 leading-snug">Desglosa un dilema o pensamiento recurrente para ganar perspectiva.</div>
+          </button>
+
+          <button onclick="startTopic('Quiero preparar una conversación o interacción difícil.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
+            <div class="text-brand-400 text-lg">🎯</div>
+            <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Preparar Conversación</div>
+            <div class="text-xs text-slate-400 leading-snug">Ensaya qué decir y cómo expresarlo de manera asertiva.</div>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- How to use / Guidance Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-4 space-y-2">
+          <h4 class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+            <span>✨</span> Cómo aprovechar el chat
+          </h4>
+          <ul class="text-slate-400 space-y-1.5 list-disc list-inside leading-relaxed">
+            <li>Exprésate con total libertad y a tu propio ritmo.</li>
+            <li>Usa el selector superior para cambiar entre modo <strong class="text-slate-300">Explorar</strong> o <strong class="text-slate-300">Profesional</strong>.</li>
+            <li>Puedes pedir un <strong class="text-slate-300">Resumen</strong> en cualquier momento para consolidar tus hallazgos.</li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-4 space-y-2">
+          <h4 class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+            <span>🛡️</span> Recuerda
+          </h4>
+          <p class="text-slate-400 leading-relaxed">
+            Re+Active es una herramienta interactiva de reflexión. No proporciona terapia ni diagnóstico. Si necesitas ayuda profesional o apoyo en crisis, recurre a servicios de emergencia locales.
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Chat Messages Thread -->
+    <div id="chat" class="space-y-4"></div>
+
+  </main>
 
   <!-- Footer Input Area -->
   <footer class="border-t border-slate-800/80 bg-slate-900/30 backdrop-blur-md p-4 sticky bottom-0">
     <div class="max-w-4xl mx-auto space-y-2">
       <div class="inputrow flex items-end gap-2 bg-slate-900 border border-slate-800 focus-within:border-brand-500/60 focus-within:ring-2 focus-within:ring-brand-500/20 rounded-2xl p-2 transition">
-        <textarea id="input" rows="1" placeholder="Escribe aquí... / Write here..." class="flex-1 bg-transparent border-0 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-0 resize-none max-h-32 px-2 py-1.5"></textarea>
+        <textarea id="input" rows="1" placeholder="Escribe tu mensaje o elige un tema arriba..." class="flex-1 bg-transparent border-0 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-0 resize-none max-h-32 px-2 py-1.5"></textarea>
         <button id="send" class="bg-brand-500 hover:bg-brand-600 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-bold rounded-xl p-2.5 flex items-center justify-center transition disabled:cursor-not-allowed shrink-0">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -137,6 +209,7 @@
     const chat = document.getElementById("chat");
     const input = document.getElementById("input");
     const send = document.getElementById("send");
+    const infoPanel = document.getElementById("infoPanel");
     let messages = []; // {role, text}
 
     // --- onboarding gate ---
@@ -149,6 +222,18 @@
       this.style.height = "auto";
       this.style.height = (this.scrollHeight) + "px";
     });
+
+    // Hide info panel when chat starts
+    function startChatMode() {
+      if (infoPanel && !infoPanel.classList.contains("hidden")) {
+        infoPanel.classList.add("hidden");
+      }
+    }
+
+    function startTopic(promptText) {
+      startChatMode();
+      sendMessage(promptText);
+    }
 
     function add(role, text, thinking = false) {
       const wrapper = document.createElement("div");
@@ -171,12 +256,15 @@
 
       wrapper.appendChild(div);
       chat.appendChild(wrapper);
-      chat.scrollTop = chat.scrollHeight;
+      const mainContainer = document.getElementById("mainContainer");
+      mainContainer.scrollTop = mainContainer.scrollHeight;
       return wrapper;
     }
 
     async function sendMessage(text) {
       if (!text.trim()) return;
+      startChatMode();
+      
       add("user", text);
       messages.push({ role: "user", text });
       
@@ -229,6 +317,13 @@
       if (messages.length && !confirm("¿Empezar una nueva conversación? Se perderá la actual. / Start a new conversation?")) return;
       messages = []; 
       chat.innerHTML = "";
+      infoPanel.classList.remove("hidden");
+    };
+
+    document.getElementById("homeLogo").onclick = () => {
+      if (!messages.length) {
+        infoPanel.classList.remove("hidden");
+      }
     };
   </script>
 </body>
