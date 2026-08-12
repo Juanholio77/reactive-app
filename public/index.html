@@ -75,11 +75,18 @@
       color: var(--text);
       font-family: 'Inter', sans-serif;
       -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
       /* ===== TYPE SCALE KNOB =====
-         Every text size in the app is relative to this one value.
-         12px = 25% smaller than the previous 16px base.
-         Raise to 13px or 14px if it reads too small on your phone. */
-      font-size: 12px;
+         Every text size in the app derives from this one value, and it
+         sizes itself to the viewport instead of being fixed:
+           small phone  (375px) -> ~15.0px
+           large phone  (430px) -> ~15.4px
+           tablet       (768px) -> ~17.0px
+           desktop            -> capped at 17.0px
+         The rem term keeps browser zoom and OS text-size settings working
+         (a pure-vw value would ignore them). To shift the whole app up or
+         down, move the 15px floor and the 17px ceiling together. */
+      font-size: clamp(15px, 0.8rem + 0.6vw, 17px);
     }
 
     /* Semantic helpers */
@@ -272,7 +279,7 @@
       <h1 class="text-lg font-bold tracking-tight">
         <span class="brandtext">Re+</span>Active
       </h1>
-      <span id="proBadge" class="hidden text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full protext" style="background: color-mix(in srgb, var(--pro) 15%, transparent); border:1px solid color-mix(in srgb, var(--pro) 35%, transparent)" data-i18n="proBadge">Profesional</span>
+      <span id="proBadge" class="hidden text-xs font-semibold px-2 py-0.5 rounded-full protext" style="background: color-mix(in srgb, var(--pro) 15%, transparent); border:1px solid color-mix(in srgb, var(--pro) 35%, transparent)" data-i18n="proBadge">Profesional</span>
     </div>
 
     <div class="flex items-center gap-2 flex-wrap text-[0.8125rem]">
@@ -405,7 +412,7 @@
   <!-- Composer template (moved between hero and footer) -->
   <template id="composerTpl">
     <div id="composer" class="field flex items-end gap-2 rounded-2xl p-2 transition">
-      <textarea id="input" rows="1" class="hint flex-1 bg-transparent border-0 text-[0.9375rem] focus:outline-none focus:ring-0 resize-none max-h-40 px-2 py-2" data-i18n-placeholder="inputHint" placeholder="Escribe aquí para empezar..."></textarea>
+      <textarea id="input" rows="1" class="hint flex-1 bg-transparent border-0 text-base focus:outline-none focus:ring-0 resize-none max-h-40 px-2 py-2" data-i18n-placeholder="inputHint" placeholder="Escribe aquí para empezar..."></textarea>
       <button id="send" class="btn-accent font-bold rounded-xl p-2.5 flex items-center justify-center transition shrink-0" data-i18n-title="sendHelp" title="">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
