@@ -49,25 +49,60 @@
 </head>
 <body class="flex flex-col h-full bg-slate-950 text-slate-100 font-sans">
 
-  <!-- Onboarding Modal / Gate -->
-  <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 transition-all duration-300">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
-      <div class="space-y-2">
-        <h2 class="text-2xl font-bold tracking-tight text-white">
-          <span class="text-brand-400">Re+</span>Active
-        </h2>
-        <p id="g1" class="text-sm text-slate-300 leading-relaxed">
-          Un espacio para explorar lo que sientes, con claridad y sin prisa.
-        </p>
+  <!-- Unified Onboarding (Welcome → Consent + Login, 2 steps) -->
+  <div id="gate" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 transition-all duration-300 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 my-8">
+
+      <!-- Step indicator -->
+      <div class="flex items-center gap-2">
+        <div id="dot1" class="h-1.5 w-8 rounded-full bg-brand-400 transition-colors duration-300"></div>
+        <div id="dot2" class="h-1.5 w-8 rounded-full bg-slate-700 transition-colors duration-300"></div>
       </div>
 
-      <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400 leading-relaxed space-y-2">
-        <p id="g2">
-          Re+Active es un programa de inteligencia artificial, no una persona ni un profesional de salud mental. No ofrece terapia, diagnóstico ni tratamiento. Si estás en crisis, contacta a los servicios de emergencia de tu país o visita <a href="https://findahelpline.com" target="_blank" class="text-brand-400 hover:underline">findahelpline.com</a>. Tus conversaciones se procesan mediante servicios de IA de terceros.
-        </p>
+      <!-- Step 1: Welcome -->
+      <div id="step1" class="space-y-6">
+        <div class="space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium">
+            <span>Acompañamiento Inteligente</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            Bienvenido a <span class="text-brand-400">Re+</span><span class="text-white">Active</span>
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Un espacio interactivo diseñado para ayudarte a procesar emociones, ordenar pensamientos complejos o preparar conversaciones importantes — con claridad y sin prisa.
+          </p>
+        </div>
+
+        <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 space-y-2 text-xs">
+          <h4 class="font-semibold text-slate-200 text-sm flex items-center gap-2">
+            <span>✨</span> Cómo aprovechar el chat
+          </h4>
+          <ul class="text-slate-400 space-y-1.5 list-disc list-inside leading-relaxed">
+            <li>Exprésate con total libertad y a tu propio ritmo.</li>
+            <li>Cambia entre modo <strong class="text-slate-300">Explorar</strong> o <strong class="text-slate-300">Profesional</strong> desde el selector superior.</li>
+            <li>Pide un <strong class="text-slate-300">Resumen</strong> en cualquier momento para consolidar tus hallazgos.</li>
+          </ul>
+        </div>
+
+        <button id="next" class="w-full py-3 px-4 bg-brand-500 hover:bg-brand-600 text-slate-950 font-semibold text-sm rounded-xl transition duration-200 shadow-lg shadow-brand-500/10 active:scale-[0.99]">
+          Continuar / Continue
+        </button>
       </div>
 
-      <div class="space-y-4">
+      <!-- Step 2: Disclaimer + Consent + Login -->
+      <div id="step2" class="hidden space-y-6">
+        <div class="space-y-2">
+          <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <span>🛡️</span> Antes de comenzar
+          </h2>
+        </div>
+
+        <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400 leading-relaxed space-y-2">
+          <p id="g2">
+            Re+Active es un programa de inteligencia artificial, no una persona ni un profesional de salud mental. No ofrece terapia, diagnóstico ni tratamiento. Si estás en crisis, contacta a los servicios de emergencia de tu país o visita <a href="https://findahelpline.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">findahelpline.com</a>. Tus conversaciones se procesan mediante servicios de IA de terceros.
+          </p>
+        </div>
+
         <label class="flex items-start gap-3 cursor-pointer group">
           <input type="checkbox" id="age" class="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-950 text-brand-500 focus:ring-brand-500/30 focus:ring-offset-slate-900 transition">
           <span id="g3" class="text-xs text-slate-300 group-hover:text-slate-200 transition select-none">
@@ -75,10 +110,41 @@
           </span>
         </label>
 
-        <button id="enter" disabled class="w-full py-3 px-4 bg-brand-500 hover:bg-brand-600 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 disabled:cursor-not-allowed font-semibold text-sm rounded-xl transition duration-200 shadow-lg shadow-brand-500/10">
-          Comenzar / Begin
-        </button>
+        <!-- Auth options (disabled until consent) -->
+        <div id="authOptions" class="space-y-3">
+          <button id="googleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white hover:bg-slate-100 disabled:bg-slate-800 disabled:text-slate-500 text-slate-900 disabled:cursor-not-allowed font-semibold text-sm rounded-xl transition duration-200 active:scale-[0.99]">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            Continuar con Google
+          </button>
+
+          <!-- Apple: descomentar cuando tengas Apple Developer Program y el provider habilitado en Firebase
+          <button id="appleBtn" disabled class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-black hover:bg-slate-900 border border-slate-700 disabled:bg-slate-800 disabled:text-slate-500 text-white disabled:cursor-not-allowed font-semibold text-sm rounded-xl transition duration-200 active:scale-[0.99]">
+             Continuar con Apple
+          </button>
+          -->
+
+          <div class="flex items-center gap-3 text-[11px] text-slate-600">
+            <div class="flex-1 h-px bg-slate-800"></div>
+            <span>o</span>
+            <div class="flex-1 h-px bg-slate-800"></div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button id="back" class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-sm rounded-xl border border-slate-700/60 transition active:scale-[0.99]">
+              Atrás
+            </button>
+            <button id="enter" disabled class="flex-1 py-3 px-4 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-800/50 disabled:text-slate-600 text-slate-200 disabled:cursor-not-allowed font-semibold text-sm rounded-xl border border-slate-700/60 transition duration-200 active:scale-[0.99]">
+              Continuar como invitado
+            </button>
+          </div>
+
+          <p id="authError" class="hidden text-xs text-red-400 text-center"></p>
+          <p class="text-[11px] text-slate-500 text-center leading-relaxed">
+            Con una cuenta podrás guardar y retomar tus conversaciones. Como invitado, la sesión se pierde al cerrar.
+          </p>
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -108,77 +174,43 @@
       <button class="btn bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" id="reset">
         Nuevo
       </button>
+
+      <!-- User chip (hidden until logged in) -->
+      <div id="userChip" class="hidden items-center gap-2 bg-slate-900 border border-slate-700/80 rounded-lg pl-1.5 pr-2 py-1">
+        <img id="userAvatar" class="h-5 w-5 rounded-full" alt="" referrerpolicy="no-referrer">
+        <span id="userName" class="text-slate-300 max-w-[100px] truncate"></span>
+        <button id="signOut" title="Cerrar sesión" class="text-slate-500 hover:text-red-400 transition font-bold">✕</button>
+      </div>
     </div>
   </header>
 
   <!-- Main Area -->
   <main id="mainContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 max-w-4xl w-full mx-auto space-y-6">
 
-    <!-- Information & Welcome Section (Visible initially) -->
-    <section id="infoPanel" class="space-y-6">
-      
-      <!-- Hero Banner -->
-      <div class="bg-gradient-to-b from-slate-900 to-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-4 shadow-xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium">
-          <span>Acompañamiento Inteligente</span>
-        </div>
-        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-          Bienvenido a <span class="text-brand-400">Re+Active</span>
-        </h2>
-        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
-          Un espacio interactivo diseñado para ayudarte a procesar emociones, ordenar pensamientos complejos o preparar conversaciones importantes. No sustituye la ayuda profesional, pero está aquí para escucharte y guiarte con estructura.
-        </p>
+    <!-- Starter Panel (Visible after onboarding, before first message) -->
+    <section id="infoPanel" class="space-y-3">
+      <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase">¿Por dónde quieres empezar?</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+        <button onclick="startTopic('Quiero explorar algo que estoy sintiendo en este momento.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
+          <div class="text-brand-400 text-lg">💬</div>
+          <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Explorar Emociones</div>
+          <div class="text-xs text-slate-400 leading-snug">Procesa un sentimiento o situación actual de forma estructurada.</div>
+        </button>
+
+        <button onclick="startTopic('Necesito ordenar mis ideas sobre un tema o decisión pendiente.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
+          <div class="text-brand-400 text-lg">🧠</div>
+          <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Clarificar Pensamientos</div>
+          <div class="text-xs text-slate-400 leading-snug">Desglosa un dilema o pensamiento recurrente para ganar perspectiva.</div>
+        </button>
+
+        <button onclick="startTopic('Quiero preparar una conversación o interacción difícil.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
+          <div class="text-brand-400 text-lg">🎯</div>
+          <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Preparar Conversación</div>
+          <div class="text-xs text-slate-400 leading-snug">Ensaya qué decir y cómo expresarlo de manera asertiva.</div>
+        </button>
+
       </div>
-
-      <!-- Quick Topics / Starter Cards -->
-      <div class="space-y-3">
-        <h3 class="text-xs font-semibold tracking-wider text-slate-400 uppercase">¿Por dónde quieres empezar?</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          
-          <button onclick="startTopic('Quiero explorar algo que estoy sintiendo en este momento.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
-            <div class="text-brand-400 text-lg">💬</div>
-            <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Explorar Emociones</div>
-            <div class="text-xs text-slate-400 leading-snug">Procesa un sentimiento o situación actual de forma estructurada.</div>
-          </button>
-
-          <button onclick="startTopic('Necesito ordenar mis ideas sobre un tema o decisión pendiente.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
-            <div class="text-brand-400 text-lg">🧠</div>
-            <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Clarificar Pensamientos</div>
-            <div class="text-xs text-slate-400 leading-snug">Desglosa un dilema o pensamiento recurrente para ganar perspectiva.</div>
-          </button>
-
-          <button onclick="startTopic('Quiero preparar una conversación o interacción difícil.')" class="text-left bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-brand-500/40 rounded-xl p-4 transition group space-y-2">
-            <div class="text-brand-400 text-lg">🎯</div>
-            <div class="font-semibold text-sm text-slate-200 group-hover:text-white">Preparar Conversación</div>
-            <div class="text-xs text-slate-400 leading-snug">Ensaya qué decir y cómo expresarlo de manera asertiva.</div>
-          </button>
-
-        </div>
-      </div>
-
-      <!-- How to use / Guidance Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-        <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-4 space-y-2">
-          <h4 class="font-semibold text-slate-200 text-sm flex items-center gap-2">
-            <span>✨</span> Cómo aprovechar el chat
-          </h4>
-          <ul class="text-slate-400 space-y-1.5 list-disc list-inside leading-relaxed">
-            <li>Exprésate con total libertad y a tu propio ritmo.</li>
-            <li>Usa el selector superior para cambiar entre modo <strong class="text-slate-300">Explorar</strong> o <strong class="text-slate-300">Profesional</strong>.</li>
-            <li>Puedes pedir un <strong class="text-slate-300">Resumen</strong> en cualquier momento para consolidar tus hallazgos.</li>
-          </ul>
-        </div>
-
-        <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-4 space-y-2">
-          <h4 class="font-semibold text-slate-200 text-sm flex items-center gap-2">
-            <span>🛡️</span> Recuerda
-          </h4>
-          <p class="text-slate-400 leading-relaxed">
-            Re+Active es una herramienta interactiva de reflexión. No proporciona terapia ni diagnóstico. Si necesitas ayuda profesional o apoyo en crisis, recurre a servicios de emergencia locales.
-          </p>
-        </div>
-      </div>
-
     </section>
 
     <!-- Chat Messages Thread -->
@@ -205,6 +237,59 @@
     </div>
   </footer>
 
+  <!-- Firebase Auth (modular SDK) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithPopup,
+      GoogleAuthProvider,
+      /* OAuthProvider, */ // ← para Apple más adelante
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    // ⚠️ REEMPLAZAR con tu config real de Firebase Console → Project settings → Web app
+	const firebaseConfig = {
+	apiKey: "AIzaSyAswo-t2Finbb2rJxj5XegacQCe6Zc7WWs",
+	authDomain: "reactive-c7d0c.firebaseapp.com",
+	projectId: "reactive-c7d0c",
+	storageBucket: "reactive-c7d0c.firebasestorage.app",
+	messagingSenderId: "486497092429",
+	appId: "1:486497092429:web:8271a34d25ef59b6186d04",
+	measurementId: "G-7N491TZ1HE"
+	};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Exponer una API mínima al script principal (no-module)
+    window.reactiveAuth = {
+      currentUser: null,
+      async getToken() {
+        return auth.currentUser ? await auth.currentUser.getIdToken() : null;
+      },
+      async signInGoogle() {
+        const provider = new GoogleAuthProvider();
+        return signInWithPopup(auth, provider);
+      },
+      /* Apple (cuando esté habilitado en Firebase + Apple Developer):
+      async signInApple() {
+        const provider = new OAuthProvider('apple.com');
+        return signInWithPopup(auth, provider);
+      },
+      */
+      async signOut() {
+        return signOut(auth);
+      }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      window.reactiveAuth.currentUser = user;
+      document.dispatchEvent(new CustomEvent("authchange", { detail: user }));
+    });
+  </script>
+
   <script>
     const chat = document.getElementById("chat");
     const input = document.getElementById("input");
@@ -212,10 +297,82 @@
     const infoPanel = document.getElementById("infoPanel");
     let messages = []; // {role, text}
 
-    // --- onboarding gate ---
-    const age = document.getElementById("age"), enter = document.getElementById("enter");
-    age.onchange = () => enter.disabled = !age.checked;
-    enter.onclick = () => document.getElementById("gate").remove();
+    // --- unified onboarding (2 steps) ---
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const dot1 = document.getElementById("dot1");
+    const dot2 = document.getElementById("dot2");
+    const age = document.getElementById("age");
+    const enter = document.getElementById("enter");
+    const googleBtn = document.getElementById("googleBtn");
+    const authError = document.getElementById("authError");
+
+    document.getElementById("next").onclick = () => {
+      step1.classList.add("hidden");
+      step2.classList.remove("hidden");
+      dot1.classList.replace("bg-brand-400", "bg-slate-700");
+      dot2.classList.replace("bg-slate-700", "bg-brand-400");
+    };
+
+    document.getElementById("back").onclick = () => {
+      step2.classList.add("hidden");
+      step1.classList.remove("hidden");
+      dot2.classList.replace("bg-brand-400", "bg-slate-700");
+      dot1.classList.replace("bg-slate-700", "bg-brand-400");
+    };
+
+    // El consentimiento habilita AMBAS rutas: Google e invitado
+    age.onchange = () => {
+      enter.disabled = !age.checked;
+      googleBtn.disabled = !age.checked;
+    };
+
+    function closeGate() {
+      const gate = document.getElementById("gate");
+      if (gate) gate.remove();
+      input.focus();
+    }
+
+    // Invitado
+    enter.onclick = closeGate;
+
+    // Google
+    googleBtn.onclick = async () => {
+      authError.classList.add("hidden");
+      googleBtn.disabled = true;
+      try {
+        await window.reactiveAuth.signInGoogle();
+        closeGate();
+      } catch (err) {
+        googleBtn.disabled = false;
+        authError.textContent = "No se pudo iniciar sesión con Google. Intenta de nuevo o entra como invitado.";
+        authError.classList.remove("hidden");
+        console.error("Google sign-in error:", err);
+      }
+    };
+
+    // --- header user chip ---
+    const userChip = document.getElementById("userChip");
+    const userAvatar = document.getElementById("userAvatar");
+    const userName = document.getElementById("userName");
+
+    document.addEventListener("authchange", (e) => {
+      const user = e.detail;
+      if (user) {
+        userAvatar.src = user.photoURL || "";
+        userName.textContent = user.displayName || user.email || "Usuario";
+        userChip.classList.remove("hidden");
+        userChip.classList.add("flex");
+      } else {
+        userChip.classList.add("hidden");
+        userChip.classList.remove("flex");
+      }
+    });
+
+    document.getElementById("signOut").onclick = async () => {
+      if (messages.length && !confirm("¿Cerrar sesión? La conversación actual continúa como invitado.")) return;
+      try { await window.reactiveAuth.signOut(); } catch (e) { console.error(e); }
+    };
 
     // Auto-grow textarea height on input
     input.addEventListener("input", function() {
@@ -223,29 +380,7 @@
       this.style.height = (this.scrollHeight) + "px";
     });
 
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAswo-t2Finbb2rJxj5XegacQCe6Zc7WWs",
-  authDomain: "reactive-c7d0c.firebaseapp.com",
-  projectId: "reactive-c7d0c",
-  storageBucket: "reactive-c7d0c.firebasestorage.app",
-  messagingSenderId: "486497092429",
-  appId: "1:486497092429:web:8271a34d25ef59b6186d04",
-  measurementId: "G-7N491TZ1HE"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-    // Hide info panel when chat starts
+    // Hide starter panel when chat starts
     function startChatMode() {
       if (infoPanel && !infoPanel.classList.contains("hidden")) {
         infoPanel.classList.add("hidden");
@@ -297,9 +432,14 @@ const analytics = getAnalytics(app);
       const t = add("bot", "", true);
 
       try {
+        // Si hay sesión, adjuntar el ID token para que el backend lo verifique
+        const headers = { "content-type": "application/json" };
+        const token = window.reactiveAuth ? await window.reactiveAuth.getToken() : null;
+        if (token) headers["authorization"] = "Bearer " + token;
+
         const res = await fetch("/api/chat", {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers,
           body: JSON.stringify({
             messages,
             provider: document.getElementById("provider").value,
