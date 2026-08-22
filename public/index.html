@@ -270,6 +270,26 @@
     </div>
   </div>
 
+  <!-- ===================== Privacy panel ===================== -->
+  <div id="privacyModal" class="hidden fixed inset-0 z-50 items-start justify-center overflow-y-auto" style="background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom)) 1rem;">
+    <div class="card rounded-2xl p-5 sm:p-6 max-w-md w-full space-y-4 m-auto" style="box-shadow: var(--shadow)">
+      <h2 class="text-xl font-bold tracking-tight flex items-center gap-2">
+        <span>🔒</span> <span data-i18n="privacyTitle">Tus datos</span>
+      </h2>
+      <p id="privacyDesc" class="text-sm muted leading-relaxed"></p>
+      <div class="space-y-2 pt-2">
+        <button id="deleteConvoBtn" class="btn-ghost w-full py-2.5 px-4 font-medium text-sm rounded-xl transition active:scale-[0.99]" style="color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, var(--border))" data-i18n="deleteConvoBtn">
+          Eliminar esta conversación
+        </button>
+        <button id="deleteAccountBtn" class="hidden btn-ghost w-full py-2.5 px-4 font-medium text-sm rounded-xl transition active:scale-[0.99]" style="color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, var(--border))" data-i18n="deleteAccountBtn">
+          Eliminar mi cuenta
+        </button>
+      </div>
+      <p id="privacyMsg" class="hidden text-sm text-center leading-relaxed"></p>
+      <button id="privacyClose" class="btn-accent w-full py-2.5 px-4 font-semibold text-sm rounded-xl transition active:scale-[0.99]" data-i18n="closeBtn">Cerrar</button>
+    </div>
+  </div>
+
   <!-- ===================== Header ===================== -->
   <header class="bar border-b px-4 py-2.5 sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3" style="backdrop-filter: blur(8px)">
     <div class="flex items-center gap-2 cursor-pointer" id="homeLogo">
@@ -311,6 +331,9 @@
       </button>
       <button id="reset" class="btn-ghost flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" data-i18n-title="resetHelp" title="">
         <span>🔄</span><span data-i18n="resetBtn">Nuevo</span>
+      </button>
+      <button id="privacyBtn" class="btn-ghost flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium transition active:scale-95" data-i18n-title="privacyHelp" title="">
+        <span>🔒</span><span data-i18n="privacyBtn">Privacidad</span>
       </button>
 
       <div id="userChip" class="hidden items-center gap-2 card rounded-lg pl-1.5 pr-2 py-1">
@@ -428,8 +451,11 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut
+      getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, deleteUser
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, deleteDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAswo-t2Finbb2rJxj5XegacQCe6Zc7WWs",
@@ -443,12 +469,98 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db   = getFirestore(app);
 
     window.reactiveAuth = {
       currentUser: null,
       async getToken() { return auth.currentUser ? await auth.currentUser.getIdToken() : null; },
       async signInGoogle() { return signInWithPopup(auth, new GoogleAuthProvider()); },
       async signOut() { return signOut(auth); }
+    };
+
+    // ============================================================
+    //  Conversation persistence
+    //  - Signed-in users: Firestore, under their own uid, synced
+    //    across devices. Firestore security rules (deployed
+    //    separately) only allow a user to read/write documents
+    //    under their own users/{uid} path — nobody else, including
+    //    this app's own backend, can read another user's data.
+    //  - Guests: IndexedDB, kept on this device/browser only, never
+    //    sent anywhere.
+    // ============================================================
+    const IDB_NAME = "reactive-active";
+    const IDB_STORE = "conversations";
+
+    function idbOpen() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onupgradeneeded = () => { req.result.createObjectStore(IDB_STORE); };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function idbGet(key) {
+      const idb = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = idb.transaction(IDB_STORE, "readonly");
+        const req = tx.objectStore(IDB_STORE).get(key);
+        req.onsuccess = () => resolve(req.result ?? null);
+        req.onerror = () => reject(req.error);
+      });
+    }
+    async function idbSet(key, val) {
+      const idb = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = idb.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).put(val, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+    async function idbDelete(key) {
+      const idb = await idbOpen();
+      return new Promise((resolve, reject) => {
+        const tx = idb.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).delete(key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function conversationRef(uid) { return doc(db, "users", uid, "conversations", "current"); }
+
+    window.reactiveStore = {
+      async load() {
+        const user = auth.currentUser;
+        try {
+          if (user) {
+            const snap = await getDoc(conversationRef(user.uid));
+            return snap.exists() ? snap.data() : null;
+          }
+          return await idbGet("current");
+        } catch (e) { console.error("Load failed:", e); return null; }
+      },
+      async save(state) {
+        const user = auth.currentUser;
+        try {
+          if (user) {
+            await setDoc(conversationRef(user.uid), { ...state, updatedAt: serverTimestamp() });
+          } else {
+            await idbSet("current", state);
+          }
+        } catch (e) { console.error("Save failed:", e); }
+      },
+      async deleteConversation() {
+        const user = auth.currentUser;
+        if (user) { await deleteDoc(conversationRef(user.uid)); }
+        else { await idbDelete("current"); }
+      },
+      async deleteAccount() {
+        const user = auth.currentUser;
+        if (!user) return;
+        await deleteDoc(conversationRef(user.uid)).catch(() => {});
+        await deleteUser(user); // throws auth/requires-recent-login if the session is old
+      }
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -485,9 +597,23 @@
         or: "o",
         back: "Atrás",
         guestBtn: "Continuar como invitado",
-        authNote: "Con una cuenta podrás guardar y retomar tus conversaciones. Como invitado, la sesión se pierde al cerrar.",
+        authNote: "Con una cuenta, tu conversación se guarda de forma privada y te sigue entre dispositivos hasta que tú decidas borrarla. Como invitado, se guarda solo en este dispositivo (no se sincroniza) y también hasta que tú la borres.",
         authFail: "No se pudo iniciar sesión con {provider}. Intenta de nuevo o entra como invitado.",
         authUnavailable: "El inicio de sesión con {provider} aún no está habilitado. Usa otra opción o entra como invitado.",
+
+        privacyBtn: "Privacidad",
+        privacyHelp: "Ver y borrar tus datos",
+        privacyTitle: "Tus datos",
+        privacyDescGuest: "Estás como invitado: tu conversación se guarda únicamente en este dispositivo y este navegador. No se sincroniza ni se envía a ningún otro lugar, y nadie más que tú puede verla aquí.",
+        privacyDescUser: "Tu conversación se guarda de forma privada asociada a tu cuenta, para que puedas retomarla desde cualquier dispositivo. Nadie más — ni siquiera el equipo de Re+Active — tiene acceso a ella.",
+        deleteConvoBtn: "Eliminar esta conversación",
+        deleteConvoConfirm: "¿Eliminar esta conversación de forma permanente? No se puede deshacer.",
+        deleteConvoDone: "Conversación eliminada.",
+        deleteAccountBtn: "Eliminar mi cuenta",
+        deleteAccountConfirm: "¿Eliminar tu cuenta y todos tus datos de forma permanente? Esta acción no se puede deshacer.",
+        deleteAccountReauth: "Por seguridad, necesitas haber iniciado sesión recientemente para eliminar tu cuenta. Cierra sesión, vuelve a entrar con Google, e inténtalo de nuevo.",
+        deleteAccountFail: "No se pudo eliminar la cuenta. Intenta de nuevo.",
+        closeBtn: "Cerrar",
 
         langHelp: "Cambiar idioma / Change language",
         langLabel: "Idioma",
@@ -564,9 +690,23 @@
         or: "or",
         back: "Back",
         guestBtn: "Continue as guest",
-        authNote: "With an account you can save and resume your conversations. As a guest, the session is lost when you close it.",
+        authNote: "With an account, your conversation is saved privately and follows you across devices until you decide to delete it. As a guest, it's saved only on this device (not synced) and also stays until you delete it.",
         authFail: "{provider} sign-in failed. Please try again or continue as a guest.",
         authUnavailable: "{provider} sign-in isn't enabled yet. Use another option or continue as a guest.",
+
+        privacyBtn: "Privacy",
+        privacyHelp: "View and delete your data",
+        privacyTitle: "Your data",
+        privacyDescGuest: "You're using a guest session: your conversation is stored only on this device and this browser. It isn't synced or sent anywhere else, and no one but you can see it here.",
+        privacyDescUser: "Your conversation is saved privately under your account, so you can pick it up on any device. No one else — not even the Re+Active team — has access to it.",
+        deleteConvoBtn: "Delete this conversation",
+        deleteConvoConfirm: "Permanently delete this conversation? This can't be undone.",
+        deleteConvoDone: "Conversation deleted.",
+        deleteAccountBtn: "Delete my account",
+        deleteAccountConfirm: "Permanently delete your account and all your data? This can't be undone.",
+        deleteAccountReauth: "For security, you need to have signed in recently to delete your account. Sign out, sign back in with Google, and try again.",
+        deleteAccountFail: "Couldn't delete the account. Please try again.",
+        closeBtn: "Close",
 
         langHelp: "Change language / Cambiar idioma",
         langLabel: "Language",
@@ -635,6 +775,34 @@
     const mc          = document.getElementById("mainContainer");
     const jumpBtn     = document.getElementById("jumpBtn");
     let messages = [];
+
+    // ---------- Conversation persistence (save/restore) ----------
+    function persistConversation() {
+      if (!window.reactiveStore) return;
+      window.reactiveStore.save({
+        messages,
+        track: document.body.dataset.track || "personal",
+        provider: document.getElementById("provider").value,
+        lang
+      });
+    }
+
+    async function restoreConversation() {
+      if (!window.reactiveStore) return;
+      try {
+        const state = await window.reactiveStore.load();
+        if (state && Array.isArray(state.messages) && state.messages.length) {
+          messages = state.messages;
+          chat.innerHTML = "";
+          messages.forEach(m => add(m.role === "user" ? "user" : "bot", m.text));
+          if (state.track) setTrack(state.track);
+          if (state.provider) document.getElementById("provider").value = state.provider;
+          startChatMode();
+          hideJumpBtn();
+          scrollToBottom(false);
+        }
+      } catch (e) { console.error("Could not restore conversation:", e); }
+    }
 
     // ---------- Scroll behavior (WhatsApp-style: stick to bottom, don't
     //             yank the view down if you've scrolled up to reread) ----------
@@ -772,7 +940,8 @@
     const userAvatar = document.getElementById("userAvatar");
     const userName = document.getElementById("userName");
 
-    document.addEventListener("authchange", (e) => {
+    let sawInitialAuth = false;
+    document.addEventListener("authchange", async (e) => {
       const user = e.detail;
       if (user) {
         userAvatar.src = user.photoURL || "";
@@ -782,6 +951,19 @@
       } else {
         userChip.classList.add("hidden");
         userChip.classList.remove("flex");
+      }
+      document.getElementById("deleteAccountBtn").classList.toggle("hidden", !user);
+
+      if (!sawInitialAuth) {
+        // First resolution on page load: pull in whatever was saved for
+        // this identity (Firestore for a signed-in user, IndexedDB for a
+        // guest) and render it.
+        sawInitialAuth = true;
+        await restoreConversation();
+      } else {
+        // Identity changed mid-session (e.g. sign-out while chatting).
+        // Keep what's on screen and just move where it's saved from now on.
+        persistConversation();
       }
     });
 
@@ -858,6 +1040,7 @@
 
       add("user", text);
       messages.push({ role: "user", text });
+      persistConversation();
 
       input.value = "";
       input.style.height = "auto";
@@ -889,6 +1072,7 @@
         } else {
           add("bot", data.reply);
           messages.push({ role: "assistant", text: data.reply });
+          persistConversation();
         }
       } catch {
         bubble.remove();
@@ -912,11 +1096,66 @@
       chat.innerHTML = "";
       hideJumpBtn();
       backToHero();
+      persistConversation();
       input.focus();
     };
 
     document.getElementById("homeLogo").onclick = () => {
       if (!messages.length) backToHero();
+    };
+
+    // ---------- Privacy panel ----------
+    const privacyModal   = document.getElementById("privacyModal");
+    const privacyDesc    = document.getElementById("privacyDesc");
+    const privacyMsg     = document.getElementById("privacyMsg");
+    const deleteConvoBtn = document.getElementById("deleteConvoBtn");
+    const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+
+    function openPrivacyModal() {
+      privacyMsg.classList.add("hidden");
+      privacyDesc.textContent = window.reactiveAuth?.currentUser ? t("privacyDescUser") : t("privacyDescGuest");
+      deleteAccountBtn.classList.toggle("hidden", !window.reactiveAuth?.currentUser);
+      privacyModal.classList.remove("hidden");
+      privacyModal.classList.add("flex");
+    }
+    function closePrivacyModal() {
+      privacyModal.classList.add("hidden");
+      privacyModal.classList.remove("flex");
+    }
+
+    document.getElementById("privacyBtn").onclick = openPrivacyModal;
+    document.getElementById("privacyClose").onclick = closePrivacyModal;
+
+    deleteConvoBtn.onclick = async () => {
+      if (!confirm(t("deleteConvoConfirm"))) return;
+      try {
+        await window.reactiveStore.deleteConversation();
+        messages = [];
+        chat.innerHTML = "";
+        hideJumpBtn();
+        backToHero();
+        privacyMsg.textContent = t("deleteConvoDone");
+        privacyMsg.style.color = "var(--muted)";
+        privacyMsg.classList.remove("hidden");
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    deleteAccountBtn.onclick = async () => {
+      if (!confirm(t("deleteAccountConfirm"))) return;
+      try {
+        await window.reactiveStore.deleteAccount();
+        closePrivacyModal();
+        location.reload();
+      } catch (e) {
+        console.error(e);
+        privacyMsg.style.color = "var(--danger)";
+        privacyMsg.textContent = (e && e.code === "auth/requires-recent-login")
+          ? t("deleteAccountReauth")
+          : t("deleteAccountFail");
+        privacyMsg.classList.remove("hidden");
+      }
     };
 
     // ---------- Initial paint ----------
