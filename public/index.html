@@ -277,7 +277,19 @@
         <span>🔒</span> <span data-i18n="privacyTitle">Tus datos</span>
       </h2>
       <p id="privacyDesc" class="text-sm muted leading-relaxed"></p>
-      <div class="space-y-2 pt-2">
+
+      <div class="space-y-2 pt-1">
+        <h3 class="text-xs font-semibold tracking-wider uppercase subtle" data-i18n="privacyMemoryTitle">Lo que Re+Active recuerda de ti</h3>
+        <p class="text-xs subtle leading-relaxed" data-i18n="privacyMemoryIntro">
+          Re+Active guarda datos puntuales que compartes (preferencias, contexto) para acompañarte mejor más adelante. Tú decides qué se queda.
+        </p>
+        <ul id="memoryList" class="space-y-1.5 text-sm"></ul>
+        <button id="forgetMemoryBtn" class="btn-ghost w-full py-2 px-4 font-medium text-xs rounded-xl transition active:scale-[0.99]" style="color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, var(--border))" data-i18n="forgetMemoryBtn">
+          Olvidar todo lo que sabes de mí
+        </button>
+      </div>
+
+      <div class="space-y-2 pt-2" style="border-top: 1px solid var(--border-soft)">
         <button id="deleteConvoBtn" class="btn-ghost w-full py-2.5 px-4 font-medium text-sm rounded-xl transition active:scale-[0.99]" style="color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, var(--border))" data-i18n="deleteConvoBtn">
           Eliminar esta conversación
         </button>
@@ -426,6 +438,21 @@
   <!-- ===================== Footer ===================== -->
   <footer class="bar border-t px-4 py-3 sticky bottom-0" style="backdrop-filter: blur(8px)">
     <div class="max-w-3xl mx-auto space-y-2">
+
+      <!-- Memory suggestion: shown after Re+Active notices something worth
+           remembering; nothing is stored until the user taps "Guardar". -->
+      <div id="memoryBanner" class="hidden card rounded-xl p-3 items-start gap-3 text-sm" style="box-shadow: var(--shadow)">
+        <span class="text-base leading-none mt-0.5">🧠</span>
+        <div class="flex-1 space-y-1.5 min-w-0">
+          <div class="muted text-xs font-semibold uppercase tracking-wide" data-i18n="memoryBannerLabel">Re+Active notó algo</div>
+          <div id="memoryBannerText" class="leading-snug"></div>
+          <div class="flex gap-2 pt-1">
+            <button id="memorySaveBtn" class="btn-accent text-xs font-semibold px-3 py-1.5 rounded-lg transition active:scale-95" data-i18n="memorySaveBtn">Guardar</button>
+            <button id="memoryDismissBtn" class="btn-ghost text-xs font-medium px-3 py-1.5 rounded-lg transition active:scale-95" data-i18n="memoryDismissBtn">No, gracias</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Composer docks here once the conversation starts -->
       <div id="composerDock"></div>
       <div class="text-xs subtle text-center">
@@ -529,6 +556,13 @@
 
     function conversationRef(uid) { return doc(db, "users", uid, "conversations", "current"); }
 
+    // Memory (facts Re+Active remembers about the user) is stored
+    // separately from the conversation transcript: its own Firestore doc
+    // for signed-in users, its own IndexedDB key for guests. Deleting or
+    // resetting the conversation never touches this — it has its own
+    // "forget" control in the privacy panel.
+    function memoryRef(uid) { return doc(db, "users", uid, "memory", "current"); }
+
     window.reactiveStore = {
       async load() {
         const user = auth.currentUser;
@@ -555,10 +589,37 @@
         if (user) { await deleteDoc(conversationRef(user.uid)); }
         else { await idbDelete("current"); }
       },
+      async loadMemory() {
+        const user = auth.currentUser;
+        try {
+          if (user) {
+            const snap = await getDoc(memoryRef(user.uid));
+            return snap.exists() ? (snap.data().facts || []) : [];
+          }
+          const stored = await idbGet("memory");
+          return Array.isArray(stored) ? stored : [];
+        } catch (e) { console.error("Memory load failed:", e); return []; }
+      },
+      async saveMemory(facts) {
+        const user = auth.currentUser;
+        try {
+          if (user) {
+            await setDoc(memoryRef(user.uid), { facts, updatedAt: serverTimestamp() });
+          } else {
+            await idbSet("memory", facts);
+          }
+        } catch (e) { console.error("Memory save failed:", e); }
+      },
+      async deleteMemory() {
+        const user = auth.currentUser;
+        if (user) { await deleteDoc(memoryRef(user.uid)); }
+        else { await idbDelete("memory"); }
+      },
       async deleteAccount() {
         const user = auth.currentUser;
         if (!user) return;
         await deleteDoc(conversationRef(user.uid)).catch(() => {});
+        await deleteDoc(memoryRef(user.uid)).catch(() => {});
         await deleteUser(user); // throws auth/requires-recent-login if the session is old
       }
     };
@@ -606,6 +667,17 @@
         privacyTitle: "Tus datos",
         privacyDescGuest: "Estás como invitado: tu conversación se guarda únicamente en este dispositivo y este navegador. No se sincroniza ni se envía a ningún otro lugar, y nadie más que tú puede verla aquí.",
         privacyDescUser: "Tu conversación se guarda de forma privada asociada a tu cuenta, para que puedas retomarla desde cualquier dispositivo. Nadie más — ni siquiera el equipo de Re+Active — tiene acceso a ella.",
+        privacyMemoryTitle: "Lo que Re+Active recuerda de ti",
+        privacyMemoryIntro: "Re+Active guarda datos puntuales que compartes (preferencias, contexto) para acompañarte mejor más adelante. Tú decides qué se queda.",
+        privacyMemoryEmpty: "Todavía no hay nada guardado.",
+        memoryItemRemoveHelp: "Olvidar este dato",
+        forgetMemoryBtn: "Olvidar todo lo que sabes de mí",
+        forgetMemoryConfirm: "¿Borrar de forma permanente todo lo que Re+Active recuerda de ti? Esta acción no se puede deshacer.",
+        forgetMemoryDone: "Memoria borrada.",
+        memoryBannerLabel: "Re+Active notó algo",
+        memorySaveBtn: "Guardar",
+        memoryDismissBtn: "No, gracias",
+
         deleteConvoBtn: "Eliminar esta conversación",
         deleteConvoConfirm: "¿Eliminar esta conversación de forma permanente? No se puede deshacer.",
         deleteConvoDone: "Conversación eliminada.",
@@ -699,6 +771,17 @@
         privacyTitle: "Your data",
         privacyDescGuest: "You're using a guest session: your conversation is stored only on this device and this browser. It isn't synced or sent anywhere else, and no one but you can see it here.",
         privacyDescUser: "Your conversation is saved privately under your account, so you can pick it up on any device. No one else — not even the Re+Active team — has access to it.",
+        privacyMemoryTitle: "What Re+Active remembers about you",
+        privacyMemoryIntro: "Re+Active keeps a few specific things you share (preferences, context) to support you better later on. You decide what stays.",
+        privacyMemoryEmpty: "Nothing saved yet.",
+        memoryItemRemoveHelp: "Forget this",
+        forgetMemoryBtn: "Forget everything you know about me",
+        forgetMemoryConfirm: "Permanently delete everything Re+Active remembers about you? This can't be undone.",
+        forgetMemoryDone: "Memory cleared.",
+        memoryBannerLabel: "Re+Active noticed something",
+        memorySaveBtn: "Save",
+        memoryDismissBtn: "No thanks",
+
         deleteConvoBtn: "Delete this conversation",
         deleteConvoConfirm: "Permanently delete this conversation? This can't be undone.",
         deleteConvoDone: "Conversation deleted.",
@@ -802,6 +885,139 @@
           scrollToBottom(false);
         }
       } catch (e) { console.error("Could not restore conversation:", e); }
+    }
+
+    // ---------- Memory (facts Re+Active remembers about the user) ----------
+    // Independent from the conversation transcript above: it's never
+    // touched by "Nuevo" (reset) or "Eliminar esta conversación", and has
+    // its own "Olvidar todo lo que sabes de mí" control in the privacy
+    // panel. Nothing here is written silently — every fact is proposed via
+    // the on-screen banner and only stored once the user taps "Guardar".
+    let memoryFacts = [];
+    let memoryQueue = [];
+
+    const memoryBanner     = document.getElementById("memoryBanner");
+    const memoryBannerText = document.getElementById("memoryBannerText");
+    const memorySaveBtn    = document.getElementById("memorySaveBtn");
+    const memoryDismissBtn = document.getElementById("memoryDismissBtn");
+    const memoryList       = document.getElementById("memoryList");
+    const forgetMemoryBtn  = document.getElementById("forgetMemoryBtn");
+
+    function persistMemory() {
+      if (!window.reactiveStore) return;
+      window.reactiveStore.saveMemory(memoryFacts);
+    }
+
+    async function restoreMemory() {
+      if (!window.reactiveStore) return;
+      try {
+        const stored = await window.reactiveStore.loadMemory();
+        memoryFacts = Array.isArray(stored) ? stored : [];
+      } catch (e) { console.error("Could not restore memory:", e); memoryFacts = []; }
+    }
+
+    function renderMemoryList() {
+      memoryList.innerHTML = "";
+      if (!memoryFacts.length) {
+        const li = document.createElement("li");
+        li.className = "subtle text-xs italic";
+        li.textContent = t("privacyMemoryEmpty");
+        memoryList.appendChild(li);
+        return;
+      }
+      memoryFacts.forEach((fact, i) => {
+        const li = document.createElement("li");
+        li.className = "inset rounded-lg px-3 py-2 flex items-start justify-between gap-2";
+        const span = document.createElement("span");
+        span.className = "flex-1 leading-snug";
+        span.textContent = fact;
+        const btn = document.createElement("button");
+        btn.className = "subtle hover:opacity-70 transition font-bold shrink-0";
+        btn.textContent = "✕";
+        btn.title = t("memoryItemRemoveHelp");
+        btn.onclick = () => {
+          memoryFacts.splice(i, 1);
+          persistMemory();
+          renderMemoryList();
+        };
+        li.appendChild(span);
+        li.appendChild(btn);
+        memoryList.appendChild(li);
+      });
+    }
+
+    function showNextMemorySuggestion() {
+      if (!memoryQueue.length) {
+        memoryBanner.classList.add("hidden");
+        memoryBanner.classList.remove("flex");
+        return;
+      }
+      memoryBannerText.textContent = memoryQueue[0];
+      memoryBanner.classList.remove("hidden");
+      memoryBanner.classList.add("flex");
+    }
+
+    memorySaveBtn.onclick = () => {
+      const fact = memoryQueue.shift();
+      if (fact) {
+        memoryFacts.push(fact);
+        persistMemory();
+        renderMemoryList();
+      }
+      showNextMemorySuggestion();
+    };
+
+    memoryDismissBtn.onclick = () => {
+      memoryQueue.shift();
+      showNextMemorySuggestion();
+    };
+
+    forgetMemoryBtn.onclick = async () => {
+      if (!confirm(t("forgetMemoryConfirm"))) return;
+      try {
+        await window.reactiveStore.deleteMemory();
+        memoryFacts = [];
+        memoryQueue = [];
+        showNextMemorySuggestion();
+        renderMemoryList();
+        privacyMsg.textContent = t("forgetMemoryDone");
+        privacyMsg.style.color = "var(--muted)";
+        privacyMsg.classList.remove("hidden");
+      } catch (e) { console.error(e); }
+    };
+
+    // After each assistant reply, quietly ask the backend whether anything
+    // in that exchange is worth remembering. Fire-and-forget: this never
+    // blocks or delays the visible chat, and any failure is silently
+    // ignored (memory is a nice-to-have, not core to the chat working).
+    async function maybeSuggestMemory(userText, assistantText) {
+      try {
+        const res = await fetch("/api/memory/suggest", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            recent: [
+              { role: "user", text: userText },
+              { role: "assistant", text: assistantText }
+            ],
+            existing: memoryFacts,
+            provider: document.getElementById("provider").value,
+            lang
+          })
+        });
+        const data = await res.json();
+        const facts = Array.isArray(data.facts) ? data.facts : [];
+        let added = false;
+        facts.forEach(f => {
+          if (f && !memoryFacts.includes(f) && !memoryQueue.includes(f)) {
+            memoryQueue.push(f);
+            added = true;
+          }
+        });
+        if (added) showNextMemorySuggestion();
+      } catch (e) {
+        console.error("Memory suggestion failed (non-critical):", e);
+      }
     }
 
     // ---------- Scroll behavior (WhatsApp-style: stick to bottom, don't
@@ -960,10 +1176,23 @@
         // guest) and render it.
         sawInitialAuth = true;
         await restoreConversation();
+        await restoreMemory();
+        renderMemoryList();
       } else {
         // Identity changed mid-session (e.g. sign-out while chatting).
         // Keep what's on screen and just move where it's saved from now on.
         persistConversation();
+        // Memory is different: the new identity may already have its own
+        // stored facts (e.g. signing back into an existing account), so
+        // merge this session's facts into that rather than overwriting it.
+        try {
+          const existing = await window.reactiveStore.loadMemory();
+          const merged = Array.isArray(existing) ? existing.slice() : [];
+          memoryFacts.forEach(f => { if (!merged.includes(f)) merged.push(f); });
+          memoryFacts = merged;
+        } catch (e) { console.error("Could not merge memory on identity change:", e); }
+        persistMemory();
+        renderMemoryList();
       }
     });
 
@@ -1061,7 +1290,8 @@
             messages,
             provider: document.getElementById("provider").value,
             mode: modeSelect.value,
-            lang
+            lang,
+            memory: memoryFacts
           })
         });
         const data = await res.json();
@@ -1073,6 +1303,7 @@
           add("bot", data.reply);
           messages.push({ role: "assistant", text: data.reply });
           persistConversation();
+          maybeSuggestMemory(text, data.reply);
         }
       } catch {
         bubble.remove();
@@ -1115,6 +1346,7 @@
       privacyMsg.classList.add("hidden");
       privacyDesc.textContent = window.reactiveAuth?.currentUser ? t("privacyDescUser") : t("privacyDescGuest");
       deleteAccountBtn.classList.toggle("hidden", !window.reactiveAuth?.currentUser);
+      renderMemoryList();
       privacyModal.classList.remove("hidden");
       privacyModal.classList.add("flex");
     }
