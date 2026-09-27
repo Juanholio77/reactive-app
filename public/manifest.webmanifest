@@ -1,0 +1,12 @@
+{
+"name": "Re+Active",
+"short_name": "Re+Active",
+"description": "Acompañamiento inteligente para explorar emociones, ordenar pensamientos y prepararte para conversaciones importantes.",
+"start_url": "/",
+"display": "standalone",
+"background_color": "#0f172a",
+"theme_color": "#0d7d72",
+"icons": [
+{ "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+]
+}
